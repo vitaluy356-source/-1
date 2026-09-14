@@ -1,0 +1,7651 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>мандавошка</title>
+<style>
+    #message{
+    display:none !important;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#101216;font-family:Arial,sans-serif;color:white}
+.wrapper{max-width:720px;margin:auto;padding:10px}
+h1{text-align:center;margin:5px 0 4px;font-size:22px}
+.subtitle{text-align:center;color:#aaa;margin-bottom:12px;font-size:13px}
+.game-panel{width:min(96vw,650px);margin:0 auto 12px;padding:12px;background:#202329;border:1px solid #3b3f46;border-radius:12px;text-align:center}
+.top-info{
+    width:100%;
+    margin-bottom:8px;
+    padding:7px 10px;
+    background:#17191d;
+    border:1px solid #343840;
+    border-radius:8px;
+    text-align:center;
+}
+
+.current-player{
+    margin:0;
+    font-size:14px;
+    line-height:18px;
+    font-weight:bold;
+}
+
+.top-info-details{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:24px;
+    margin-top:3px;
+    font-size:13px;
+}
+
+.dice-result{
+    color:#ddd;
+    font-weight:bold;
+}
+
+.turn-timer{
+    margin:0;
+    color:#ddd;
+    font-size:13px;
+}
+
+.turn-timer strong{
+    color:white;
+    font-size:14px;
+}
+.current-player{margin-bottom:8px;font-size:15px;font-weight:bold}
+.player-green{color:#159447}
+.player-blue{color:#2563eb}
+.player-black{color:white}
+.player-red{color:#d92525}
+.dice-area{
+    display:none !important;
+}
+.die{
+    width:58px;
+    height:58px;
+    display:grid !important;
+    grid-template-columns:repeat(3,1fr) !important;
+    grid-template-rows:repeat(3,1fr) !important;
+    padding:6px;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 4px 10px rgba(0,0,0,.45);
+    user-select:none;
+}
+
+.die > div{
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+    min-height:0;
+}
+
+.die-dot{
+    display:block;
+    width:9px;
+    height:9px;
+    background:#111;
+    border-radius:50%;
+}
+.total{margin-bottom:10px;color:#ccc}
+.total strong{color:white;font-size:18px}
+.turn-timer{
+  margin-bottom:10px;
+  color:#ccc;
+  font-size:14px;
+}
+.turn-timer strong{
+  color:white;
+  font-size:18px;
+}
+.timeout-info{
+  min-height:18px;
+  margin-top:4px;
+  color:#aaa;
+  font-size:12px;
+}
+.buttons{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:7px;
+    flex-wrap:nowrap;
+    width:100%;
+}
+
+.buttons button{
+    border:0;
+    border-radius:8px;
+    min-width:0;
+    height:38px;
+    padding:0 7px;
+    font-size:09px;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+    box-sizing:border-box;
+}
+
+.roll-button{
+    background:#e5a629;
+    color:#111;
+}
+
+.skip-button{
+    background:#555;
+    color:white;
+}
+
+.undo-button{
+    background:#555;
+    color:white;
+}
+
+.confirm-turn-button{
+    background:#e5a629;
+    color:#111;
+}
+
+.roll-button:disabled,
+.skip-button:disabled,
+.undo-button:disabled,
+.confirm-turn-button:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+.message{min-height:20px;margin-top:9px;color:#ccc;font-size:13px}
+.capture-confirm{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90vw,360px);padding:20px;background:#202329;border:1px solid #555;border-radius:14px;box-shadow:0 15px 45px rgba(0,0,0,.8);z-index:1200;display:none;text-align:center}
+.capture-confirm-title{font-size:17px;font-weight:bold;margin-bottom:10px}
+.capture-confirm-text{font-size:14px;line-height:1.4;color:#ccc;margin-bottom:16px}
+.capture-confirm-buttons{display:flex;justify-content:center;gap:10px}
+.capture-confirm-buttons button{border:0;border-radius:8px;padding:10px 24px;font-size:15px;font-weight:bold;cursor:pointer}
+.confirm-yes{background:#159447;color:white}
+.confirm-no{background:#555;color:white}
+
+.capture-action-confirm{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90vw,360px);padding:20px;background:#202329;border:1px solid #555;border-radius:14px;box-shadow:0 15px 45px rgba(0,0,0,.8);z-index:1250;display:none;text-align:center}
+.capture-action-confirm-title{font-size:17px;font-weight:bold;margin-bottom:10px}
+.capture-action-confirm-text{font-size:14px;line-height:1.4;color:#ccc;margin-bottom:16px}
+.capture-action-confirm-buttons{display:flex;justify-content:center;gap:10px}
+.capture-action-confirm-buttons button{border:0;border-radius:8px;padding:10px 24px;font-size:15px;font-weight:bold;cursor:pointer}
+.capture-action-yes{background:#159447;color:white}
+.capture-action-no{background:#555;color:white}
+
+.start-screen{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,400px);padding:22px;background:#202329;border:1px solid #555;border-radius:14px;box-shadow:0 15px 45px rgba(0,0,0,.8);z-index:1300;text-align:center}
+.start-screen h2{margin:0 0 12px;font-size:19px}
+.start-screen-text{font-size:14px;color:#ccc;line-height:1.4;margin-bottom:15px}
+.start-player{font-size:16px;font-weight:bold;margin:10px 0}
+.start-results{margin:12px 0;text-align:left}
+.start-result-row{padding:7px 10px;margin:5px 0;background:#292d33;border-radius:7px}
+.start-screen button{border:0;border-radius:8px;padding:10px 22px;background:#e5a629;color:#111;font-size:15px;font-weight:bold;cursor:pointer}
+.start-screen button:disabled{opacity:.45;cursor:not-allowed}
+
+.finish-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1400;display:none}
+.finish-window{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,430px);padding:22px;background:#d9d9d9;border:1px solid #666;border-radius:15px;box-shadow:0 15px 50px rgba(0,0,0,.85);z-index:1401;display:none;text-align:center;color:#111}
+.finish-title{font-size:21px;font-weight:bold;margin-bottom:12px}
+.finish-subtitle{font-size:14px;color:#444;margin-bottom:15px}
+.finish-results{text-align:left;margin-bottom:18px}
+.finish-result{padding:9px 12px;margin:6px 0;background:#eeeeee;border-radius:8px;font-size:15px;color:#111}
+.finish-place{font-weight:bold;margin-right:6px}
+.finish-window .player-black{color:#111}
+.fast-forward-button{
+    position:fixed;
+    left:50%;
+    bottom:20px;
+    transform:translateX(-50%);
+    z-index:1350;
+
+    border:0;
+    border-radius:10px;
+    padding:12px 20px;
+
+    background:#e5a629;
+    color:#111;
+
+    font-size:15px;
+    font-weight:bold;
+
+    cursor:pointer;
+    box-shadow:0 5px 20px rgba(0,0,0,.45);
+}
+
+.fast-forward-button:active{
+    transform:translateX(-50%) scale(.97);
+}
+.restart-button{border:0;border-radius:8px;padding:11px 25px;background:#e5a629;color:#111;font-size:15px;font-weight:bold;cursor:pointer}
+
+.board{width:min(96vw,650px);height:min(96vw,650px);margin:auto;position:relative;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);overflow:hidden;border:5px solid #40230f;border-radius:14px;background:radial-gradient(ellipse 180px 70px at 15% 20%,rgba(255,238,200,.35),transparent 75%),radial-gradient(ellipse 240px 100px at 82% 23%,rgba(255,230,185,.30),transparent 75%),repeating-radial-gradient(ellipse 80% 55% at 25% 25%,transparent 0 17px,rgba(72,38,15,.12) 18px,transparent 22px 38px),repeating-radial-gradient(ellipse 70% 75% at 78% 72%,transparent 0 20px,rgba(75,39,16,.13) 21px,transparent 25px 43px),linear-gradient(125deg,#c99d68,#d7b07b,#c79b65,#d5aa73,#bd8d57);box-shadow:inset 0 0 55px rgba(65,31,9,.25),0 15px 35px rgba(0,0,0,.55)}
+.board.rotated-green{
+    transform:rotate(0deg);
+}
+
+.board.rotated-red{
+    transform:rotate(-90deg);
+}
+
+.board.rotated-blue{
+    transform:rotate(180deg);
+}
+
+.board.rotated-black{
+    transform:rotate(90deg);
+}
+.cell{position:relative;z-index:5;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.empty{background:transparent}
+.road,.center{background:#fff;color:#111;border:1px solid rgba(0,0,0,.22)}
+.center-seven{background:#ffd43b;color:#111;border:1px solid rgba(0,0,0,.22)}
+.home-blue,.start-blue{background:#2563eb!important;color:white!important}
+.home-black,.start-black{background:#292929!important;color:white!important}
+.home-green,.start-green{background:#159447!important;color:white!important}
+.home-red,.start-red{background:#d92525!important;color:white!important}
+.shelter{background:#7c3aed!important;color:white!important}
+.number{position:absolute;top:2px;left:3px;font-size:clamp(7px,1.7vw,12px)}
+/* ========================================
+   ЦИФРЫ НЕ ВРАЩАЮТСЯ ВМЕСТЕ С ПОЛЕМ
+   ======================================== */
+
+.board.rotated-green .number{
+    transform:rotate(0deg);
+}
+
+.board.rotated-red .number{
+    transform:rotate(90deg);
+}
+
+.board.rotated-blue .number{
+    transform:rotate(180deg);
+}
+
+.board.rotated-black .number{
+    transform:rotate(-90deg);
+}
+.cell.move-option{box-shadow:inset 0 0 0 4px #ffd43b,inset 0 0 18px rgba(255,212,59,.9);animation:movePulse .8s infinite alternate;cursor:pointer;z-index:20}
+.cell.move-option.max-move{box-shadow:inset 0 0 0 5px #00ff66,inset 0 0 22px rgba(0,255,100,.95);animation:maxPulse .7s infinite alternate}
+@keyframes movePulse{from{filter:brightness(1)}to{filter:brightness(1.35)}}
+@keyframes maxPulse{from{filter:brightness(1)}to{filter:brightness(1.45)}}
+.piece{position:absolute;width:17px;height:17px;border-radius:50%;z-index:100;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.95);box-shadow:0 2px 5px rgba(0,0,0,.7),inset 0 2px 3px rgba(255,255,255,.35);transition:left .20s ease,top .20s ease;cursor:pointer;pointer-events:auto}
+.piece.green{background:#159447}
+.piece.blue{background:#2563eb}
+.piece.black{background:#292929}
+.piece.red{background:#d92525}
+.piece::after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;top:2px;left:3px;background:rgba(255,255,255,.5)}
+.piece.selectable{animation:piecePulse .7s infinite alternate;box-shadow:0 0 0 4px rgba(255,212,59,.45),0 0 16px rgba(255,212,59,.9),inset 0 2px 3px rgba(255,255,255,.35)}
+.piece.captive{z-index:110}
+.piece.captive.selectable{animation:captivePulse .7s infinite alternate;box-shadow:0 0 0 4px rgba(255,212,59,.65),0 0 18px rgba(255,212,59,1),inset 0 2px 3px rgba(255,255,255,.35)}
+.piece.finished{cursor:default}
+@keyframes piecePulse{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.18)}}
+@keyframes captivePulse{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.25)}}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="game-panel">
+
+    <div class="top-info">
+
+    <div
+        id="currentPlayer"
+        class="current-player player-green"
+    >
+        Определение первого игрока
+    </div>
+
+    <div class="top-info-details">
+
+        <div class="dice-result">
+            🎲 <span id="diceResult">—</span>
+        </div>
+
+        <div class="turn-timer">
+            ⏱ <strong id="turnTimer">1:30</strong>
+        </div>
+        <div class="timeout-counter">
+        <span id="timeoutInfo">0 / 3</span>
+
+    </div>
+
+</div>
+
+    <div class="dice-area">
+
+        <div
+            id="dice1"
+            class="die"
+            data-value="0"
+        ></div>
+
+        <div
+            id="dice2"
+            class="die"
+            data-value="0"
+        ></div>
+
+    </div>
+
+    <div class="buttons">
+
+        <button
+            id="rollButton"
+            class="roll-button"
+        >
+            🎲 Бросить
+        </button>
+
+        <button
+            id="undoButton"
+            class="undo-button"
+            style="display:none;"
+        >
+            ↶ Отменить
+        </button>
+
+        <button
+            id="confirmButton"
+            class="confirm-turn-button"
+            style="display:none;"
+        >
+            ✓ Подтверждаю
+        </button>
+
+        <button
+            id="skipButton"
+            class="skip-button"
+            style="display:none;"
+        >
+            ⏭ Пропустить ход
+        </button>
+        
+        <div id="message" class="message">
+    Определяем, кто начинает первый ход.
+</div>
+
+    </div>
+
+</div>
+
+<div id="board" class="board">
+</div>
+
+<div id="captureConfirm" class="capture-confirm">
+<div class="capture-confirm-title">Выкупить пленную фишку?</div>
+<div id="captureConfirmText" class="capture-confirm-text">Точно ли вы хотите выкупить эту фишку у данного игрока?</div>
+<div class="capture-confirm-buttons">
+<button id="captureConfirmYes" class="confirm-yes">Да</button>
+<button id="captureConfirmNo" class="confirm-no">Нет</button>
+</div>
+</div>
+
+<div id="captureActionConfirm" class="capture-action-confirm">
+<div class="capture-action-confirm-title">Срубить фишку?</div>
+<div id="captureActionConfirmText" class="capture-action-confirm-text">На клетке находится фишка другого игрока. Хотите её срубить?</div>
+<div class="capture-action-confirm-buttons">
+<button id="captureActionConfirmYes" class="capture-action-yes">Срубить</button>
+<button id="captureActionConfirmNo" class="capture-action-no">Не срубать</button>
+</div>
+</div>
+
+<div id="startScreen" class="start-screen" style="display:none;">
+<h2>Определение первого игрока</h2>
+<div id="startScreenText" class="start-screen-text">Каждый игрок бросает по одному кубику. Игрок с наибольшим результатом начинает первый ход. Остальные игроки ходят далее в установленном порядке: зелёный → красный → синий → чёрный.</div>
+<div id="startPlayer" class="start-player"></div>
+<div id="startResults" class="start-results"></div>
+<button id="startContinueButton" disabled>Продолжить</button>
+</div>
+
+<div id="finishOverlay" class="finish-overlay"></div>
+
+<button
+    id="fastForwardButton"
+    class="fast-forward-button"
+    style="display:none;"
+>
+    ⏩ Пропустить до результатов
+</button>
+
+<div id="finishWindow" class="finish-window">
+<div class="finish-title">🏆 Игра окончена!</div>
+<div id="finishSubtitle" class="finish-subtitle">Поздравляем победителей!</div>
+<div id="finishResults" class="finish-results"></div>
+<button id="restartButton" class="restart-button">Начать заново</button>
+</div>
+
+<script>
+const SIZE=15;
+const PIECES_PER_PLAYER=5;
+
+const board=document.getElementById("board");
+const dice1=document.getElementById("dice1");
+const dice2=document.getElementById("dice2");
+const total=document.getElementById("diceResult"); 
+const rollButton=document.getElementById("rollButton");
+const skipButton=document.getElementById("skipButton");
+const message=document.getElementById("message");
+const currentPlayerElement=document.getElementById("currentPlayer");
+
+const turnTimerElement=document.getElementById("turnTimer");
+const timeoutInfo=document.getElementById("timeoutInfo");
+
+const diceResult=document.getElementById("diceResult");
+
+const undoButton=
+document.getElementById("undoButton");
+
+const confirmButton=
+document.getElementById("confirmButton");
+
+const TURN_TIME=90;
+
+let turnTimerInterval=null;
+let turnTimeLeft=TURN_TIME;
+let timeoutCount=0;
+let timeoutProcessing=false;
+let fastForwardMode=false;
+
+const captureConfirm=document.getElementById("captureConfirm");
+const captureConfirmText=document.getElementById("captureConfirmText");
+const captureConfirmYes=document.getElementById("captureConfirmYes");
+const captureConfirmNo=document.getElementById("captureConfirmNo");
+
+const captureActionConfirm=document.getElementById("captureActionConfirm");
+const captureActionConfirmText=document.getElementById("captureActionConfirmText");
+const captureActionConfirmYes=document.getElementById("captureActionConfirmYes");
+const captureActionConfirmNo=document.getElementById("captureActionConfirmNo");
+
+const startScreen=document.getElementById("startScreen");
+const startPlayer=document.getElementById("startPlayer");
+const startResults=document.getElementById("startResults");
+const startContinueButton=document.getElementById("startContinueButton");
+
+const finishOverlay=document.getElementById("finishOverlay");
+const finishWindow=document.getElementById("finishWindow");
+const finishSubtitle=document.getElementById("finishSubtitle");
+const finishResults=document.getElementById("finishResults");
+const restartButton=document.getElementById("restartButton");
+const fastForwardButton=
+document.getElementById("fastForwardButton");
+
+function buildGrid(){
+const fragment=document.createDocumentFragment();
+
+for(let r=1;r<=SIZE;r++)for(let c=1;c<=SIZE;c++){
+const cell=document.createElement("div");
+cell.className="cell empty";
+cell.dataset.row=r;
+cell.dataset.col=c;
+fragment.appendChild(cell);
+}
+
+board.appendChild(fragment);
+}
+
+function getCell(r,c){
+return board.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+}
+
+function setNumber(r,c,n){
+const cell=getCell(r,c);
+if(!cell)return;
+
+cell.className="cell road";
+cell.innerHTML=`<span class="number">${n}</span>`;
+}
+
+function topArm(){
+const left=[1,2,3,4,5,6];
+const right=[14,1,2,3,4,5];
+const outer=[13,12,11,10,9,8];
+
+for(let i=0;i<6;i++){
+const r=i+1;
+
+setNumber(r,7,left[i]);
+setNumber(r,8,right[i]);
+setNumber(r,9,outer[i]);
+}
+}
+
+function rightArm(){
+for(let i=0;i<6;i++){
+const c=15-i;
+
+setNumber(7,c,i+1);
+setNumber(8,c,[14,1,2,3,4,5][i]);
+setNumber(9,c,[13,12,11,10,9,8][i]);
+}
+}
+
+function bottomArm(){
+for(let i=0;i<6;i++){
+const r=15-i;
+
+setNumber(r,9,i+1);
+setNumber(r,8,[14,1,2,3,4,5][i]);
+setNumber(r,7,[13,12,11,10,9,8][i]);
+}
+}
+
+function leftArm(){
+for(let i=0;i<6;i++){
+const c=i+1;
+
+setNumber(9,c,i+1);
+setNumber(8,c,[14,1,2,3,4,5][i]);
+setNumber(7,c,[13,12,11,10,9,8][i]);
+}
+}
+
+function center(){
+for(let r=7;r<=9;r++)for(let c=7;c<=9;c++){
+
+const cell=getCell(r,c);
+
+if((r===7||r===9)&&(c===7||c===9)){
+cell.className="cell center-seven";
+cell.innerHTML=`<span class="number">7</span>`;
+}else{
+cell.className="cell center";
+cell.innerHTML="";
+}
+}
+}
+
+function homes(){
+for(let r=2;r<=6;r++)getCell(r,8).classList.add("home-blue");
+for(let c=14;c>=10;c--)getCell(8,c).classList.add("home-black");
+for(let r=14;r>=10;r--)getCell(r,8).classList.add("home-green");
+for(let c=2;c<=6;c++)getCell(8,c).classList.add("home-red");
+}
+
+const shelterData=[
+{position:[3,6],entry:[3,7]},
+{position:[4,10],entry:[4,9]},
+{position:[6,13],entry:[7,13]},
+{position:[10,12],entry:[9,12]},
+{position:[13,10],entry:[13,9]},
+{position:[12,6],entry:[12,7]},
+{position:[10,3],entry:[9,3]},
+{position:[6,4],entry:[7,4]}
+];
+
+function shelters(){
+shelterData.forEach(shelter=>{
+const cell=getCell(shelter.position[0],shelter.position[1]);
+if(cell)cell.classList.add("shelter");
+});
+}
+
+function starts(){
+getCell(1,6).className="cell start-blue";
+getCell(6,15).className="cell start-black";
+getCell(15,10).className="cell start-green";
+getCell(10,1).className="cell start-red";
+}
+
+const baseTrack=[
+[15,9],[14,9],[13,9],[12,9],[11,9],[10,9],[9,9],[9,10],[9,11],[9,12],[9,13],[9,14],[9,15],[8,15],
+[7,15],[7,14],[7,13],[7,12],[7,11],[7,10],[7,9],[6,9],[5,9],[4,9],[3,9],[2,9],[1,9],[1,8],
+[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[7,6],[7,5],[7,4],[7,3],[7,2],[7,1],[8,1],
+[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[10,7],[11,7],[12,7],[13,7],[14,7],[15,7],[15,8]
+];
+
+function makePlayerTrack(startIndex){
+return[
+...baseTrack.slice(startIndex),
+...baseTrack.slice(0,startIndex)
+];
+}
+
+const greenTrack=makePlayerTrack(0);
+const blackTrack=makePlayerTrack(14);
+const blueTrack=makePlayerTrack(28);
+const redTrack=makePlayerTrack(42);
+
+const greenFinish=[
+[14,8],[13,8],[12,8],[11,8],[10,8]
+];
+
+const blueFinish=[
+[2,8],[3,8],[4,8],[5,8],[6,8]
+];
+
+const blackFinish=[
+[8,14],[8,13],[8,12],[8,11],[8,10]
+];
+
+const redFinish=[
+[8,2],[8,3],[8,4],[8,5],[8,6]
+];
+
+// ========================================
+// НАСТРОЙКИ ИЗ SETUP.HTML
+// ========================================
+
+const savedGameSettings =
+    JSON.parse(
+        localStorage.getItem(
+            "mandavoshka_game_settings"
+        ) || "null"
+    );
+
+const humanColor =
+    savedGameSettings?.humanColor || "green";
+
+function applyBoardOrientation(){
+
+    board.classList.remove(
+        "rotated-green",
+        "rotated-red",
+        "rotated-blue",
+        "rotated-black"
+    );
+
+    board.classList.add(
+        "rotated-"+humanColor
+    );
+}
+
+const totalPlayers =
+    savedGameSettings?.players || 4;
+
+const botCount =
+    totalPlayers - 1;
+
+const players={
+green:{
+name:"зелёного",
+color:"green",
+track:greenTrack,
+finish:greenFinish,
+start:[15,10],
+waitingPosition:[15,11],
+pieces:[],
+bonusSixes:0,
+timeoutCount:0,
+finished:false,
+eliminated:false,
+place:null
+},
+
+red:{
+name:"красного",
+color:"red",
+track:redTrack,
+finish:redFinish,
+start:[10,1],
+waitingPosition:[11,1],
+pieces:[],
+bonusSixes:0,
+timeoutCount:0,
+finished:false,
+eliminated:false,
+place:null
+},
+
+blue:{
+name:"синего",
+color:"blue",
+track:blueTrack,
+finish:blueFinish,
+start:[1,6],
+waitingPosition:[1,5],
+pieces:[],
+bonusSixes:0,
+timeoutCount:0,
+finished:false,
+eliminated:false,
+place:null
+},
+
+black:{
+name:"чёрного",
+color:"black",
+track:blackTrack,
+finish:blackFinish,
+start:[6,15],
+waitingPosition:[5,15],
+pieces:[],
+bonusSixes:0,
+timeoutCount:0,
+finished:false,
+eliminated:false,
+place:null
+}
+};
+
+function getWaitingOffset(playerColor,pieceIndex){
+const spacing=16;
+
+if(playerColor==="green")return{x:pieceIndex*spacing,y:0};
+if(playerColor==="black")return{x:0,y:-pieceIndex*spacing};
+if(playerColor==="blue")return{x:-pieceIndex*spacing,y:0};
+if(playerColor==="red")return{x:0,y:pieceIndex*spacing};
+
+return{x:0,y:0};
+}
+
+const captiveOrder={
+green:["black","blue","red"],
+black:["green","red","blue"],
+blue:["green","black","red"],
+red:["green","blue","black"]
+};
+
+function getCaptiveOffset(captorColor,capturedOwner,pieceIndex){
+const spacing=16;
+const order=captiveOrder[captorColor]||[];
+const colorIndex=order.indexOf(capturedOwner);
+
+if(colorIndex<0)return{x:0,y:0};
+
+if(captorColor==="green"){
+return{x:pieceIndex*spacing,y:-(colorIndex+1)*spacing};
+}
+
+if(captorColor==="black"){
+return{x:-(colorIndex+1)*spacing,y:-pieceIndex*spacing};
+}
+
+if(captorColor==="blue"){
+return{x:-pieceIndex*spacing,y:(colorIndex+1)*spacing};
+}
+
+if(captorColor==="red"){
+return{x:(colorIndex+1)*spacing,y:pieceIndex*spacing};
+}
+
+return{x:0,y:0};
+}
+
+function createPieceState(player,index){
+return{
+id:player.color+"-"+index,
+owner:player.color,
+position:-1,
+finishPosition:-1,
+shelterIndex:-1,
+capturedBy:null,
+atStart:false,
+element:null,
+pieceIndex:index
+};
+}
+
+let playerOrder=["green","red","blue","black"];
+let currentPlayerIndex=0;
+
+// Единый список игроков, которые уже получили окончательное место.
+const finishedPlayers=[];
+
+// Места для нормально завершивших игру: 1 → 2 → 3...
+let nextFinishPlace=1;
+
+// Места для выбывших: 4 → 3 → 2...
+let nextEliminationPlace=4;
+
+let diceRolled=false;
+let rolledDice=null;
+let remainingDice=[];
+let possibleMoves=[];
+let pendingBuybackPiece=null;
+let pendingCaptureAction=null;
+
+// История состояний текущего хода.
+// Используется кнопкой «Отменить».
+let turnHistory=[];
+
+// Флаг: игрок уже бросил кубики и сейчас принимает
+// окончательное решение по своему ходу.
+let turnAwaitingConfirmation=false;
+
+let chainSixActive=false;
+let chainSixPlayer=null;
+let chainSixRemaining=0;
+let chainSixQueue=[];
+let chainOriginNextIndex=null;
+
+let gamePhase="determining";
+let determiningPlayerIndex=0;
+let determiningResults={};
+let determiningPendingValue=null;
+let determiningRoundPlayers=[];
+
+function createTurnSnapshot(){
+
+    const snapshot={
+        currentPlayerIndex:currentPlayerIndex,
+
+        diceRolled:diceRolled,
+
+        rolledDice:rolledDice
+            ?{
+                d1:rolledDice.d1,
+                d2:rolledDice.d2
+            }
+            :null,
+
+        remainingDice:remainingDice.map(die=>({
+            index:die.index,
+            value:die.value
+        })),
+
+        possibleMoves:[],
+
+        turnAwaitingConfirmation:
+            turnAwaitingConfirmation,
+
+        chainSixActive:chainSixActive,
+        chainSixPlayer:chainSixPlayer,
+        chainSixRemaining:chainSixRemaining,
+
+        chainSixQueue:
+            chainSixQueue.map(item=>({
+                playerKey:item.playerKey,
+                count:item.count
+            })),
+
+        chainOriginNextIndex:
+            chainOriginNextIndex,
+
+        players:{}
+    };
+
+    Object.keys(players).forEach(key=>{
+
+        const player=players[key];
+
+        snapshot.players[key]={
+            bonusSixes:player.bonusSixes,
+            timeoutCount:player.timeoutCount,
+            finished:player.finished,
+            eliminated:player.eliminated,
+            place:player.place,
+
+            pieces:player.pieces.map(piece=>({
+                id:piece.id,
+                position:piece.position,
+                finishPosition:piece.finishPosition,
+                shelterIndex:piece.shelterIndex,
+                capturedBy:piece.capturedBy,
+                atStart:piece.atStart
+            }))
+        };
+    });
+
+    return snapshot;
+}
+
+
+function saveTurnState(){
+
+    turnHistory.push(
+        createTurnSnapshot()
+    );
+
+    updateTurnButtons();
+}
+
+
+function restoreTurnState(snapshot){
+
+    if(!snapshot)return;
+
+    currentPlayerIndex=
+        snapshot.currentPlayerIndex;
+
+    diceRolled=
+        snapshot.diceRolled;
+
+    rolledDice=
+        snapshot.rolledDice
+        ?{
+            d1:snapshot.rolledDice.d1,
+            d2:snapshot.rolledDice.d2
+        }
+        :null;
+
+    remainingDice=
+        snapshot.remainingDice.map(die=>({
+            index:die.index,
+            value:die.value
+        }));
+
+    possibleMoves=[];
+
+    turnAwaitingConfirmation=
+        snapshot.turnAwaitingConfirmation;
+
+    chainSixActive=
+        snapshot.chainSixActive;
+
+    chainSixPlayer=
+        snapshot.chainSixPlayer;
+
+    chainSixRemaining=
+        snapshot.chainSixRemaining;
+
+    chainSixQueue=
+        snapshot.chainSixQueue.map(item=>({
+            playerKey:item.playerKey,
+            count:item.count
+        }));
+
+    chainOriginNextIndex=
+        snapshot.chainOriginNextIndex;
+
+    Object.keys(players).forEach(key=>{
+
+        const player=players[key];
+        const saved=snapshot.players[key];
+
+        if(!saved)return;
+
+        player.bonusSixes=
+            saved.bonusSixes;
+
+        player.timeoutCount=
+            saved.timeoutCount;
+
+        player.finished=
+            saved.finished;
+
+        player.eliminated=
+            saved.eliminated;
+
+        player.place=
+            saved.place;
+
+        saved.pieces.forEach(
+            savedPiece=>{
+
+                const piece=
+                    player.pieces.find(
+                        p=>p.id===savedPiece.id
+                    );
+
+                if(!piece)return;
+
+                piece.position=
+                    savedPiece.position;
+
+                piece.finishPosition=
+                    savedPiece.finishPosition;
+
+                piece.shelterIndex=
+                    savedPiece.shelterIndex;
+
+                piece.capturedBy=
+                    savedPiece.capturedBy;
+
+                piece.atStart=
+                    savedPiece.atStart;
+
+                if(piece.element){
+
+                    piece.element.classList.remove(
+                        "captive"
+                    );
+
+                    piece.element.classList.remove(
+                        "selectable"
+                    );
+                }
+            }
+        );
+    });
+
+    clearMoveHighlights();
+
+    placeAllPieces();
+
+    syncRolledDiceFromRemaining();
+
+    updateCurrentPlayer();
+
+    updateTurnButtons();
+}
+
+
+function undoTurn(){
+
+    if(chainSixActive)return;
+
+    if(turnHistory.length===0)return;
+
+    const snapshot=
+        turnHistory.pop();
+
+    restoreTurnState(snapshot);
+
+    message.textContent=
+        "Последнее действие отменено.";
+
+    if(
+        diceRolled&&
+        remainingDice.length>0
+    ){
+
+        showAllNormalOptions();
+
+    }else{
+
+        clearMoveHighlights();
+    }
+
+    updateTurnButtons();
+}
+
+
+function updateTurnButtons(){
+
+    if(!undoButton||
+       !confirmButton)
+        return;
+
+    const canUndo=
+        turnHistory.length>0&&
+        diceRolled&&
+        !chainSixActive&&
+        playerOrder[currentPlayerIndex]===humanColor
+
+    undoButton.style.display=
+        canUndo
+        ?"inline-block"
+        :"none";
+
+    undoButton.disabled=
+        !canUndo;
+
+    const canConfirm=
+        diceRolled&&
+        !chainSixActive&&
+        
+turnAwaitingConfirmation&&
+        playerOrder[currentPlayerIndex]===humanColor;
+        
+    confirmButton.style.display=
+        canConfirm
+        ?"inline-block"
+        :"none";
+
+    confirmButton.disabled=
+        !canConfirm;
+}
+
+function assignFinishPlace(playerKey){
+
+    const player=players[playerKey];
+
+    if(!player)return null;
+    if(player.place!==null)return player.place;
+
+    while(
+        nextFinishPlace<=4 &&
+        finishedPlayers.some(
+            key=>players[key].place===nextFinishPlace
+        )
+    ){
+        nextFinishPlace++;
+    }
+
+    if(nextFinishPlace>4)return null;
+
+    player.place=nextFinishPlace;
+
+    finishedPlayers.push(playerKey);
+
+    nextFinishPlace++;
+
+    return player.place;
+}
+
+
+function assignEliminationPlace(playerKey){
+
+    const player=players[playerKey];
+
+    if(!player)return null;
+    if(player.place!==null)return player.place;
+
+    while(
+        nextEliminationPlace>=1 &&
+        finishedPlayers.some(
+            key=>players[key].place===nextEliminationPlace
+        )
+    ){
+        nextEliminationPlace--;
+    }
+
+    if(nextEliminationPlace<1)return null;
+
+    player.place=nextEliminationPlace;
+
+    finishedPlayers.push(playerKey);
+
+    nextEliminationPlace--;
+
+    return player.place;
+}
+
+function getActivePlayers(){
+return playerOrder.filter(key=>!players[key].finished);
+}
+
+function startDeterminingFirstPlayer(){
+
+gamePhase="determining";
+
+determiningResults={};
+determiningPendingValue=null;
+determiningPlayerIndex=0;
+determiningRoundPlayers=[
+    humanColor,
+    ...playerOrder.filter(
+        color=>color!==humanColor
+    )
+]; 
+
+dice1.style.display="flex";
+dice2.style.display="none";
+
+dice1.textContent="—";
+dice2.textContent="—";
+total.textContent="—";
+
+rollButton.disabled=false;
+skipButton.style.display="none";
+skipButton.disabled=true;
+
+currentPlayerIndex=0;
+
+updateDeterminingScreen();
+}
+
+function updateDeterminingScreen(){
+
+if(gamePhase!=="determining")return;
+
+dice1.style.display="flex";
+dice2.style.display="none";
+
+const key=determiningRoundPlayers[determiningPlayerIndex];
+const player=players[key];
+
+currentPlayerElement.textContent=
+"Определение первого: "+player.name+" игрок";
+
+currentPlayerElement.className=
+"current-player player-"+player.color;
+
+if(determiningPendingValue===null){
+
+message.textContent=
+player.name+
+" игрок: бросьте кубик.";
+
+rollButton.textContent="🎲 Бросить кубик";
+rollButton.disabled=false;
+
+}else{
+
+message.textContent=
+player.name+
+" игрок получил "+determiningPendingValue+". Нажмите «Продолжить».";
+
+rollButton.textContent="Продолжить";
+rollButton.disabled=false;
+}
+
+renderDeterminingResults();
+if(
+    window.MandavoshkaBot &&
+    window.MandavoshkaBot.onTurnChanged
+){
+    window.MandavoshkaBot.onTurnChanged();
+}
+
+} 
+
+function renderDeterminingResults(){
+
+startScreen.style.display="none";
+
+startResults.innerHTML="";
+
+determiningRoundPlayers.forEach(key=>{
+
+const player=players[key];
+
+const row=document.createElement("div");
+row.className="start-result-row";
+
+const value=
+determiningResults[key]!==undefined
+?determiningResults[key]
+:"—";
+
+row.innerHTML=
+`<span class="player-${player.color}">${player.name} игрок:</span> ${value}`;
+
+startResults.appendChild(row);
+});
+}
+
+function finishDeterminingPlayer(){
+
+const key=determiningRoundPlayers[determiningPlayerIndex];
+
+determiningResults[key]=determiningPendingValue;
+
+determiningPendingValue=null;
+
+determiningPlayerIndex++;
+
+if(determiningPlayerIndex<determiningRoundPlayers.length){
+
+updateDeterminingScreen();
+return;
+}
+
+resolveDeterminingOrder();
+}
+
+function resolveDeterminingOrder(){
+
+const groups={};
+
+determiningRoundPlayers.forEach(key=>{
+const value=determiningResults[key];
+
+if(!groups[value])groups[value]=[];
+groups[value].push(key);
+});
+
+const sortedValues=
+Object.keys(groups)
+.map(Number)
+.sort((a,b)=>b-a);
+
+const highestValue=sortedValues[0];
+
+const highestGroup=groups[highestValue];
+
+if(highestGroup.length>1){
+
+determiningRoundPlayers=highestGroup;
+determiningPlayerIndex=0;
+determiningResults={};
+determiningPendingValue=null;
+
+message.textContent=
+"Есть одинаковый максимальный результат. Эти игроки перебрасывают по одному кубику.";
+
+updateDeterminingScreen();
+return;
+}
+
+const firstPlayer=highestGroup[0];
+
+/*
+ * После жеребьёвки оставляем только тех игроков,
+ * которые участвуют в текущей партии.
+ *
+ * Внутренний порядок цветов сохраняется:
+ * зелёный → красный → синий → чёрный.
+ */
+playerOrder=
+allPlayerColors.filter(
+    color=>
+        activePlayerColors.includes(color)
+);
+
+currentPlayerIndex=
+playerOrder.indexOf(firstPlayer);
+
+if(currentPlayerIndex<0){
+    currentPlayerIndex=0;
+}
+
+playerOrder.forEach((key,index)=>{
+players[key].place=null;
+});
+
+gamePhase="playing";
+
+dice1.style.display="flex";
+dice2.style.display="flex";
+
+dice1.textContent="—";
+dice2.textContent="—";
+total.textContent="—";
+
+rollButton.textContent="🎲 Бросить два кубика";
+rollButton.disabled=false;
+skipButton.style.display="none";
+skipButton.disabled=true;
+
+updateCurrentPlayer();
+
+message.textContent=
+"Первым ходит "+
+players[firstPlayer].name+
+" игрок. Далее ходят по порядку: зелёный → красный → синий → чёрный.";
+
+startTurnTimer();
+}
+
+function updateDiceTotal(){
+
+if(!rolledDice){
+    total.textContent="—";
+    return;
+}
+
+const d1=rolledDice.d1;
+const d2=rolledDice.d2;
+
+if(d1===null&&d2===null){
+
+    total.textContent="—";
+
+}else if(d1!==null&&d2!==null){
+
+    total.textContent=
+        d1+" / "+d2;
+
+}else{
+
+    total.textContent=
+        d1!==null
+        ?d1
+        :d2;
+}
+
+}
+
+function placePieceAtCell(piece,r,c,offsetX=0,offsetY=0){
+
+if(!piece.element)return;
+
+const cell=getCell(r,c);
+if(!cell)return;
+
+/*
+ * Координаты считаем внутри самого board.
+ * Это важно: board может быть визуально повернут,
+ * но внутренняя система координат игры остаётся прежней.
+ */
+
+const x=
+cell.offsetLeft+
+cell.offsetWidth/2+
+offsetX;
+
+const y=
+cell.offsetTop+
+cell.offsetHeight/2+
+offsetY;
+
+piece.element.style.left=x+"px";
+piece.element.style.top=y+"px";
+}
+
+function placePiece(piece){
+
+const owner=players[piece.owner];
+
+if(!owner||!piece.element)return;
+
+if(piece.capturedBy){
+
+const captor=players[piece.capturedBy];
+
+if(!captor)return;
+
+const offset=getCaptiveOffset(
+piece.capturedBy,
+piece.owner,
+piece.pieceIndex
+);
+
+placePieceAtCell(
+piece,
+captor.waitingPosition[0],
+captor.waitingPosition[1],
+offset.x,
+offset.y
+);
+
+return;
+}
+
+if(piece.atStart){
+
+placePieceAtCell(
+piece,
+owner.start[0],
+owner.start[1]
+);
+
+return;
+}
+
+if(piece.shelterIndex>=0){
+
+const shelter=shelterData[piece.shelterIndex];
+
+placePieceAtCell(
+piece,
+shelter.position[0],
+shelter.position[1]
+);
+
+return;
+}
+
+if(piece.finishPosition>=0){
+
+const point=owner.finish[piece.finishPosition];
+
+placePieceAtCell(
+piece,
+point[0],
+point[1]
+);
+
+return;
+}
+
+if(piece.position===-1){
+
+const offset=
+getWaitingOffset(
+piece.owner,
+piece.pieceIndex
+);
+
+placePieceAtCell(
+piece,
+owner.waitingPosition[0],
+owner.waitingPosition[1],
+offset.x,
+offset.y
+);
+
+return;
+}
+
+const point=owner.track[piece.position];
+
+if(!point)return;
+
+placePieceAtCell(
+piece,
+point[0],
+point[1]
+);
+}
+
+function placeAllPieces(){
+
+Object.values(players).forEach(
+player=>player.pieces.forEach(
+piece=>placePiece(piece)
+)
+);
+}
+
+function getTrackPieceAtPoint(
+point,
+ignorePiece=null,
+secondIgnorePiece=null
+){
+
+if(!point)return null;
+
+for(const player of Object.values(players)){
+
+for(const piece of player.pieces){
+
+if(
+piece===ignorePiece||
+piece===secondIgnorePiece
+)continue;
+
+if(piece.capturedBy!==null)continue;
+if(piece.position<0)continue;
+if(piece.atStart)continue;
+if(piece.finishPosition>=0)continue;
+if(piece.shelterIndex>=0)continue;
+
+const otherPoint=
+player.track[piece.position];
+
+if(
+otherPoint&&
+otherPoint[0]===point[0]&&
+otherPoint[1]===point[1]
+){
+return piece;
+}
+}
+}
+
+return null;
+}
+
+function getAnyPieceAtPoint(
+point,
+ignorePiece=null,
+secondIgnorePiece=null
+){
+
+if(!point)return null;
+
+for(const player of Object.values(players)){
+
+for(const piece of player.pieces){
+
+if(
+piece===ignorePiece||
+piece===secondIgnorePiece
+)continue;
+
+if(piece.capturedBy!==null)continue;
+
+if(
+piece.position>=0&&
+piece.finishPosition===-1&&
+piece.shelterIndex===-1
+){
+
+const p=
+player.track[piece.position];
+
+if(
+p&&
+p[0]===point[0]&&
+p[1]===point[1]
+){
+return piece;
+}
+}
+
+
+/*
+ * Фишка, которая вышла на старт,
+ * тоже занимает свою стартовую клетку.
+ *
+ * Поэтому atStart нельзя игнорировать.
+ */
+if(piece.atStart){
+
+const owner=
+players[piece.owner];
+
+if(
+owner&&
+owner.start&&
+owner.start[0]===point[0]&&
+owner.start[1]===point[1]
+){
+
+return piece;
+
+}
+}
+
+if(piece.finishPosition>=0){
+
+const p=
+player.finish[piece.finishPosition];
+
+if(
+p&&
+p[0]===point[0]&&
+p[1]===point[1]
+){
+return piece;
+}
+}
+
+if(piece.shelterIndex>=0){
+
+const shelter=
+shelterData[piece.shelterIndex];
+
+if(
+shelter&&
+shelter.position[0]===point[0]&&
+shelter.position[1]===point[1]
+){
+return piece;
+}
+}
+}
+}
+
+return null;
+}
+
+function isShelterFree(index){
+
+return !Object.values(players).some(
+player=>player.pieces.some(
+piece=>
+piece.shelterIndex===index&&
+piece.capturedBy===null
+)
+);
+}
+
+function getShelterForEntry(point){
+
+if(!point)return-1;
+
+for(let i=0;i<shelterData.length;i++){
+
+const entry=shelterData[i].entry;
+
+if(
+entry[0]===point[0]&&
+entry[1]===point[1]
+){
+return i;
+}
+}
+
+return-1;
+}
+
+function enterShelterIfPossible(piece){
+
+if(
+piece.position<0||
+piece.finishPosition>=0||
+piece.shelterIndex>=0||
+piece.capturedBy!==null||
+piece.atStart
+)return;
+
+const owner=players[piece.owner];
+
+const point=owner.track[piece.position];
+
+if(!point)return;
+
+const shelterIndex=
+getShelterForEntry(point);
+
+if(shelterIndex<0)return;
+
+if(!isShelterFree(shelterIndex))return;
+
+piece.shelterIndex=shelterIndex;
+
+placePiece(piece);
+}
+
+function canMoveToPoint(piece,point){
+
+if(!point)return false;
+
+const blocker=
+getTrackPieceAtPoint(
+point,
+piece
+);
+
+if(!blocker)return true;
+
+if(blocker.owner===piece.owner)return false;
+
+return true;
+}
+
+function getCapturablePiece(piece,point){
+
+if(!point)return null;
+
+const blocker=
+getTrackPieceAtPoint(
+point,
+piece
+);
+
+if(!blocker)return null;
+
+if(blocker.owner===piece.owner)return null;
+
+return blocker;
+}
+
+const sevenCorners=[
+{row:9,col:9,trackIndex:6},
+{row:7,col:9,trackIndex:20},
+{row:7,col:7,trackIndex:34},
+{row:9,col:7,trackIndex:48}
+];
+
+function getSevenIndex(piece){
+
+if(
+piece.position<0||
+piece.shelterIndex>=0||
+piece.capturedBy!==null||
+piece.atStart
+)return-1;
+
+const owner=players[piece.owner];
+
+const point=
+owner.track[piece.position];
+
+if(!point)return-1;
+
+for(let i=0;i<sevenCorners.length;i++){
+
+if(
+sevenCorners[i].row===point[0]&&
+sevenCorners[i].col===point[1]
+){
+return i;
+}
+}
+
+return-1;
+}
+
+function canJumpPathBePassed(
+piece,
+fromIndex,
+toIndex
+){
+
+if(toIndex<=fromIndex)return false;
+
+const owner=players[piece.owner];
+
+if(
+fromIndex<0||
+toIndex>=owner.track.length
+)return false;
+
+return true;
+}
+
+function getJumpTarget(
+piece,
+jumpValue,
+state=null
+){
+
+const currentState=state||{
+position:piece.position,
+finishPosition:piece.finishPosition,
+shelterIndex:piece.shelterIndex,
+atStart:piece.atStart
+};
+
+if(
+currentState.position<0||
+currentState.shelterIndex>=0||
+currentState.finishPosition>=0||
+currentState.atStart
+)return null;
+
+if(jumpValue!==1&&jumpValue!==3)return null;
+
+const owner=players[piece.owner];
+
+const tempPiece={
+...piece,
+position:currentState.position,
+finishPosition:currentState.finishPosition,
+shelterIndex:currentState.shelterIndex,
+atStart:false,
+capturedBy:null
+};
+
+const currentSeven=
+getSevenIndex(tempPiece);
+
+if(currentSeven<0)return null;
+
+const playerSevenIndices=[];
+
+for(let i=0;i<sevenCorners.length;i++){
+
+const seven=sevenCorners[i];
+
+let trackIndex=-1;
+
+for(let j=0;j<owner.track.length;j++){
+
+const point=owner.track[j];
+
+if(
+point[0]===seven.row&&
+point[1]===seven.col
+){
+
+trackIndex=j;
+
+break;
+}
+}
+
+if(trackIndex>=0){
+
+playerSevenIndices.push({
+visualIndex:i,
+trackIndex:trackIndex
+});
+}
+}
+
+playerSevenIndices.sort(
+(a,b)=>a.trackIndex-b.trackIndex
+);
+
+const currentOrderIndex=
+playerSevenIndices.findIndex(
+item=>item.visualIndex===currentSeven
+);
+
+if(currentOrderIndex<0)return null;
+
+const targetOrderIndex=
+currentOrderIndex+
+(jumpValue===1?1:2);
+
+if(
+targetOrderIndex>=playerSevenIndices.length
+)return null;
+
+const targetSevenInfo=
+playerSevenIndices[targetOrderIndex];
+
+const targetSeven=
+sevenCorners[targetSevenInfo.visualIndex];
+
+const targetIndex=
+targetSevenInfo.trackIndex;
+
+if(targetIndex<=currentState.position)return null;
+
+if(!canJumpPathBePassed(
+tempPiece,
+currentState.position,
+targetIndex
+))return null;
+
+const targetPoint=[
+targetSeven.row,
+targetSeven.col
+];
+
+const blocker=
+getTrackPieceAtPoint(
+targetPoint,
+tempPiece
+);
+
+
+/*
+ * На клетку 7 нельзя прыгать,
+ * если там уже стоит собственная фишка.
+ *
+ * Чужую фишку можно срубить
+ * обычным образом.
+ */
+
+if(
+blocker
+){
+
+if(
+blocker.owner===piece.owner
+){
+
+return null;
+
+}
+
+}
+
+return{
+position:targetIndex,
+point:targetPoint,
+sevenIndex:targetSevenInfo.visualIndex,
+capturedPiece:
+blocker&&
+blocker.owner!==piece.owner
+?blocker
+:null
+};
+}
+
+function simulateExitAction(piece){
+
+if(
+piece.position!==-1||
+piece.finishPosition!==-1||
+piece.shelterIndex!==-1||
+piece.capturedBy!==null||
+piece.atStart
+)return null;
+
+
+/*
+ * Стартовая клетка может занимать
+ * только одна фишка своего владельца.
+ *
+ * Если на старте уже стоит своя фишка,
+ * новая фишка из зоны ожидания выйти
+ * не может.
+ */
+
+const owner=
+players[piece.owner];
+
+if(!owner||!owner.start)
+    return null;
+
+const startPiece=
+getAnyPieceAtPoint(
+    owner.start,
+    piece
+);
+
+if(startPiece)
+    return null;
+
+
+return{
+position:-1,
+finishPosition:-1,
+shelterIndex:-1,
+atStart:true,
+capturedPiece:null,
+type:"exit"
+};
+}
+
+function simulateNormalMove(
+piece,
+steps,
+state,
+ignorePiece=null
+){
+
+if(steps<=0)return null;
+
+const owner=players[piece.owner];
+
+let position=state.position;
+let finishPosition=state.finishPosition;
+let atStart=!!state.atStart;
+
+if(atStart){
+
+if(steps>owner.track.length)return null;
+
+let capturedPiece=null;
+
+for(let i=0;i<steps;i++){
+
+const next=i;
+
+if(next>=owner.track.length)return null;
+
+const point=owner.track[next];
+
+const blocker=
+getTrackPieceAtPoint(
+point,
+piece,
+ignorePiece
+);
+
+if(blocker){
+
+if(blocker.owner===piece.owner)return null;
+
+if(i!==steps-1)return null;
+
+capturedPiece=blocker;
+}
+}
+
+return{
+type:"main",
+position:steps-1,
+finishPosition:-1,
+shelterIndex:-1,
+atStart:false,
+capturedPiece,
+fromStart:true
+};
+}
+
+if(finishPosition>=0){
+
+let homePos=finishPosition;
+
+for(let i=0;i<steps;i++){
+
+const next=homePos+1;
+
+if(next>=owner.finish.length)return null;
+
+const point=owner.finish[next];
+
+if(getAnyPieceAtPoint(
+point,
+piece,
+ignorePiece
+))return null;
+
+homePos=next;
+}
+
+return{
+type:"home",
+position,
+finishPosition:homePos,
+shelterIndex:-1,
+atStart:false,
+capturedPiece:null
+};
+}
+
+if(state.shelterIndex>=0){
+
+const shelter=
+shelterData[state.shelterIndex];
+
+const entry=shelter.entry;
+
+if(getAnyPieceAtPoint(
+entry,
+piece,
+ignorePiece
+))return null;
+
+let entryIndex=-1;
+
+for(let i=0;i<owner.track.length;i++){
+
+const point=owner.track[i];
+
+if(
+point[0]===entry[0]&&
+point[1]===entry[1]
+){
+entryIndex=i;
+break;
+}
+}
+
+if(entryIndex<0)return null;
+
+position=entryIndex;
+finishPosition=-1;
+
+let capturedPiece=null;
+
+for(let i=0;i<steps;i++){
+
+const next=position+1;
+
+if(next>=owner.track.length){
+
+const homePoint=
+owner.finish[0];
+
+if(getAnyPieceAtPoint(
+homePoint,
+piece,
+ignorePiece
+))return null;
+
+let homePos=0;
+
+for(let j=i+1;j<steps;j++){
+
+const nextHome=homePos+1;
+
+if(nextHome>=owner.finish.length)return null;
+
+const hp=
+owner.finish[nextHome];
+
+if(getAnyPieceAtPoint(
+hp,
+piece,
+ignorePiece
+))return null;
+
+homePos=nextHome;
+}
+
+return{
+type:"home",
+position,
+finishPosition:homePos,
+shelterIndex:-1,
+atStart:false,
+capturedPiece:null,
+fromShelter:true
+};
+}
+
+const point=owner.track[next];
+
+const blocker=
+getTrackPieceAtPoint(
+point,
+piece,
+ignorePiece
+);
+
+if(blocker){
+
+if(blocker.owner===piece.owner)return null;
+
+if(i!==steps-1)return null;
+
+capturedPiece=blocker;
+}
+
+position=next;
+}
+
+return{
+type:"main",
+position,
+finishPosition:-1,
+shelterIndex:-1,
+atStart:false,
+capturedPiece,
+fromShelter:true
+};
+}
+
+if(position<0)return null;
+
+let capturedPiece=null;
+
+for(let i=0;i<steps;i++){
+
+const next=position+1;
+
+if(next>=owner.track.length){
+
+const homePoint=
+owner.finish[0];
+
+if(getAnyPieceAtPoint(
+homePoint,
+piece,
+ignorePiece
+))return null;
+
+let homePos=0;
+
+for(let j=i+1;j<steps;j++){
+
+const nextHome=homePos+1;
+
+if(nextHome>=owner.finish.length)return null;
+
+const hp=
+owner.finish[nextHome];
+
+if(getAnyPieceAtPoint(
+hp,
+piece,
+ignorePiece
+))return null;
+
+homePos=nextHome;
+}
+
+return{
+type:"home",
+position,
+finishPosition:homePos,
+shelterIndex:-1,
+atStart:false,
+capturedPiece
+};
+}
+
+const point=owner.track[next];
+
+const blocker=
+getTrackPieceAtPoint(
+point,
+piece,
+ignorePiece
+);
+
+if(blocker){
+
+if(blocker.owner===piece.owner)return null;
+
+if(i!==steps-1)return null;
+
+capturedPiece=blocker;
+}
+
+position=next;
+}
+
+return{
+type:"main",
+position,
+finishPosition:-1,
+shelterIndex:-1,
+atStart:false,
+capturedPiece
+};
+}
+
+function applyNormalResult(
+piece,
+state,
+result
+){
+
+const newState={
+position:result.position,
+finishPosition:result.finishPosition,
+shelterIndex:-1,
+atStart:!!result.atStart,
+capturedPiece:result.capturedPiece||null
+};
+
+if(result.type==="main"){
+
+const owner=players[piece.owner];
+
+const point=
+owner.track[result.position];
+
+const shelterIndex=
+getShelterForEntry(point);
+
+if(
+shelterIndex>=0&&
+isShelterFree(shelterIndex)
+){
+
+newState.shelterIndex=
+shelterIndex;
+}
+}
+
+return newState;
+}
+
+function getSingleDieOptions(
+piece,
+value
+){
+
+if(piece.capturedBy!==null)return[];
+
+if(
+    value===6&&
+    piece.position===-1&&
+    piece.finishPosition===-1&&
+    piece.shelterIndex===-1&&
+    !piece.atStart
+){
+    const exitState=simulateExitAction(piece);
+
+    if(exitState){
+        return[{
+            type:"exit",
+            steps:6,
+            state:exitState,
+            label:"Выход по 6"
+        }];
+    }
+}
+
+const normalState={
+position:piece.position,
+finishPosition:piece.finishPosition,
+shelterIndex:piece.shelterIndex,
+atStart:piece.atStart,
+capturedPiece:null
+};
+
+const normalResult=
+simulateNormalMove(
+piece,
+value,
+normalState
+);
+
+const options=[];
+
+if(normalResult){
+
+options.push({
+type:"normal",
+steps:value,
+state:
+applyNormalResult(
+piece,
+normalState,
+normalResult
+),
+label:"Движение на "+value,
+capturedPiece:
+normalResult.capturedPiece||null
+});
+}
+
+if(value===1||value===3){
+
+const jump=
+getJumpTarget(
+piece,
+value,
+normalState
+);
+
+if(jump){
+
+options.push({
+type:"jump",
+steps:value,
+state:{
+position:jump.position,
+finishPosition:-1,
+shelterIndex:-1,
+atStart:false,
+capturedPiece:
+jump.capturedPiece||null
+},
+label:"Прыжок на 7",
+capturedPiece:
+jump.capturedPiece||null
+});
+}
+}
+
+return options;
+}
+
+function getPieceActions(
+piece,
+availableDice
+){
+
+const actions=[];
+
+for(const die of availableDice){
+
+const options=
+getSingleDieOptions(
+piece,
+die.value
+);
+
+options.forEach(option=>{
+
+actions.push({
+...option,
+dieIndex:die.index,
+dieValue:die.value,
+dieIndices:[die.index]
+});
+});
+}
+
+if(availableDice.length>=2){
+
+for(let i=0;i<availableDice.length;i++){
+
+for(let j=i+1;j<availableDice.length;j++){
+
+const dieA=availableDice[i];
+const dieB=availableDice[j];
+
+const combinedValue=
+dieA.value+dieB.value;
+
+const normalState={
+position:piece.position,
+finishPosition:piece.finishPosition,
+shelterIndex:piece.shelterIndex,
+atStart:piece.atStart,
+capturedPiece:null
+};
+
+const combinedResult=
+simulateNormalMove(
+piece,
+combinedValue,
+normalState
+);
+
+if(combinedResult){
+
+actions.push({
+type:"combined",
+steps:combinedValue,
+state:
+applyNormalResult(
+piece,
+normalState,
+combinedResult
+),
+label:
+"Объединённый ход на "+
+combinedValue,
+dieIndices:[
+dieA.index,
+dieB.index
+],
+dieIndex:null,
+dieValue:combinedValue,
+capturedPiece:
+combinedResult.capturedPiece||null
+});
+}
+}
+}
+}
+
+if(availableDice.length>=2){
+
+for(let i=0;i<availableDice.length;i++){
+
+for(let j=0;j<availableDice.length;j++){
+
+if(i===j)continue;
+
+const firstDie=availableDice[i];
+const secondDie=availableDice[j];
+
+if(
+firstDie.value!==1&&
+firstDie.value!==3
+)continue;
+
+const firstState={
+position:piece.position,
+finishPosition:piece.finishPosition,
+shelterIndex:piece.shelterIndex,
+atStart:piece.atStart,
+capturedPiece:null
+};
+
+const jump=
+getJumpTarget(
+piece,
+firstDie.value,
+firstState
+);
+
+if(!jump)continue;
+
+const afterJumpState={
+position:jump.position,
+finishPosition:-1,
+shelterIndex:-1,
+atStart:false,
+capturedBy:null
+};
+
+const secondResult=
+simulateNormalMove(
+piece,
+secondDie.value,
+afterJumpState,
+jump.capturedPiece||null
+);
+
+if(!secondResult)continue;
+
+const finalState=
+applyNormalResult(
+piece,
+afterJumpState,
+secondResult
+);
+
+actions.push({
+
+type:"postJump",
+
+firstDieIndex:firstDie.index,
+secondDieIndex:secondDie.index,
+
+firstJumpValue:firstDie.value,
+secondSteps:secondDie.value,
+
+steps:
+firstDie.value+
+secondDie.value,
+
+dieIndices:[
+firstDie.index,
+secondDie.index
+],
+
+dieIndex:null,
+
+dieValue:
+firstDie.value+
+secondDie.value,
+
+state:finalState,
+
+capturedPiece:
+secondResult.capturedPiece||
+null,
+
+jumpCapturedPiece:
+jump.capturedPiece||
+null,
+
+label:
+"Прыжок на "+
+firstDie.value+
+" → движение на "+
+secondDie.value
+});
+}
+}
+}
+
+if(availableDice.length>=2){
+
+for(let i=0;i<availableDice.length;i++){
+
+for(let j=0;j<availableDice.length;j++){
+
+if(i===j)continue;
+
+const firstDie=availableDice[i];
+const secondDie=availableDice[j];
+
+if(
+secondDie.value!==1&&
+secondDie.value!==3
+)continue;
+
+const firstState={
+position:piece.position,
+finishPosition:piece.finishPosition,
+shelterIndex:piece.shelterIndex,
+atStart:piece.atStart,
+capturedPiece:null
+};
+
+const firstResult=
+simulateNormalMove(
+piece,
+firstDie.value,
+firstState
+);
+
+if(!firstResult)continue;
+
+if(firstResult.capturedPiece)continue;
+
+const firstAppliedState=
+applyNormalResult(
+piece,
+firstState,
+firstResult
+);
+
+const tempAfterFirst={
+...piece,
+position:firstAppliedState.position,
+finishPosition:firstAppliedState.finishPosition,
+shelterIndex:firstAppliedState.shelterIndex,
+atStart:firstAppliedState.atStart,
+capturedBy:null
+};
+
+if(getSevenIndex(tempAfterFirst)<0)continue;
+
+const jump=
+getJumpTarget(
+piece,
+secondDie.value,
+firstAppliedState
+);
+
+if(!jump)continue;
+
+actions.push({
+
+type:"preJump",
+
+steps:
+firstDie.value+
+secondDie.value,
+
+firstSteps:firstDie.value,
+jumpValue:secondDie.value,
+
+firstDieIndex:firstDie.index,
+secondDieIndex:secondDie.index,
+
+dieIndices:[
+firstDie.index,
+secondDie.index
+],
+
+state:{
+position:jump.position,
+finishPosition:-1,
+shelterIndex:-1,
+atStart:false,
+capturedPiece:
+jump.capturedPiece||null
+},
+
+capturedPiece:
+jump.capturedPiece||null,
+
+label:
+"Ход на "+
+firstDie.value+
+" → 7 → прыжок на "+
+secondDie.value
+});
+}
+}
+}
+
+return actions;
+}
+
+function getStatePoint(piece,state){
+
+const owner=players[piece.owner];
+
+if(state.capturedBy){
+
+const captor=
+players[state.capturedBy];
+
+if(captor)return captor.waitingPosition;
+}
+
+if(state.atStart)return owner.start;
+
+if(state.shelterIndex>=0){
+
+return shelterData[
+state.shelterIndex
+].position;
+}
+
+if(state.finishPosition>=0){
+
+return owner.finish[
+state.finishPosition
+];
+}
+
+if(state.position>=0){
+
+return owner.track[
+state.position
+];
+}
+
+return owner.start;
+}
+
+function clearMoveHighlights(){
+
+document.querySelectorAll(
+".move-option"
+).forEach(cell=>{
+
+cell.classList.remove("move-option");
+cell.classList.remove("max-move");
+cell.onclick=null;
+});
+
+Object.values(players).forEach(player=>{
+
+player.pieces.forEach(piece=>{
+
+piece._plannerActions=[];
+
+if(piece.element){
+
+piece.element.classList.remove(
+"selectable"
+);
+
+piece.element.onclick=null;
+
+piece.element.addEventListener(
+"click",
+piece._selectHandler||null
+);
+}
+});
+});
+}
+
+function getActionDescription(action){
+
+if(!action)return"Ход";
+
+if(action.label)return action.label;
+
+if(action.type==="normal")
+return"Движение на "+action.steps;
+
+if(action.type==="combined")
+return"Объединённый ход на "+action.steps;
+
+if(action.type==="jump")
+return"Прыжок на "+action.steps;
+
+if(action.type==="exit")
+return"Выход по 6";
+
+return"Выбранное действие";
+}
+
+function highlightAllAvailablePieces(){
+
+clearMoveHighlights();
+
+if(chainSixActive){
+
+const player=players[chainSixPlayer];
+
+if(!player)return false;
+
+let found=false;
+
+player.pieces.forEach(piece=>{
+
+if(piece.capturedBy!==null)return;
+
+const actions=
+getSingleDieOptions(
+piece,
+6
+);
+
+if(actions.length>0){
+
+piece.element.classList.add(
+"selectable"
+);
+
+found=true;
+}
+});
+
+player.pieces.forEach(piece=>{
+
+if(piece.capturedBy!==null){
+
+piece.element.classList.add(
+"selectable"
+);
+
+found=true;
+}
+});
+
+return found;
+}
+
+if(
+!diceRolled||
+remainingDice.length===0
+)return false;
+
+const key=
+playerOrder[currentPlayerIndex];
+
+const player=players[key];
+
+if(!player||player.finished)return false;
+
+let found=false;
+
+player.pieces.forEach(piece=>{
+
+if(piece.capturedBy!==null)return;
+
+const actions=
+getPieceActions(
+piece,
+remainingDice
+);
+
+if(actions.length>0){
+
+piece.element.classList.add(
+"selectable"
+);
+
+found=true;
+}
+});
+
+const hasSix=
+remainingDice.some(
+die=>die.value===6
+);
+
+if(hasSix){
+
+player.pieces.forEach(piece=>{
+
+if(piece.capturedBy!==null){
+
+piece.element.classList.add(
+"selectable"
+);
+
+found=true;
+}
+});
+}
+
+return found;
+}
+
+function getActionCapture(
+piece,
+action
+){
+
+if(
+action.jumpCapturedPiece&&
+action.jumpCapturedPiece.owner!==piece.owner
+){
+
+return action.jumpCapturedPiece;
+}
+
+if(
+action.capturedPiece&&
+action.capturedPiece.owner!==piece.owner
+){
+
+return action.capturedPiece;
+}
+
+const point=
+getStatePoint(
+piece,
+action.state
+);
+
+if(!point)return null;
+
+const target=
+getTrackPieceAtPoint(
+point,
+piece
+);
+
+if(
+target&&
+target.owner!==piece.owner
+){
+
+return target;
+}
+
+return null;
+}
+
+function requestActionExecution(
+piece,
+action
+){
+
+const captured=
+getActionCapture(
+piece,
+action
+);
+
+if(captured){
+
+openCaptureActionConfirmation(
+piece,
+action,
+captured
+);
+
+return;
+}
+
+executeSingleAction(
+piece,
+action
+);
+}
+
+function openCaptureActionConfirmation(
+piece,
+action,
+captured
+){
+
+pendingCaptureAction={
+piece,
+action,
+captured
+};
+
+const ownerName=
+players[captured.owner].name;
+
+captureActionConfirmText.textContent=
+"На клетке находится фишка "+
+ownerName+
+" игрока. Хотите её срубить?";
+
+captureActionConfirm.style.display="block";
+}
+
+function closeCaptureActionConfirmation(){
+
+captureActionConfirm.style.display="none";
+pendingCaptureAction=null;
+
+clearMoveHighlights();
+
+if(chainSixActive){
+
+highlightAllAvailablePieces();
+
+}else if(
+diceRolled&&
+remainingDice.length>0
+){
+
+showAllNormalOptions();
+}
+}
+
+async function confirmCaptureAction(){
+
+const pending=
+pendingCaptureAction;
+
+if(!pending){
+
+closeCaptureActionConfirmation();
+return;
+}
+
+captureActionConfirm.style.display="none";
+pendingCaptureAction=null;
+
+await executeSingleAction(
+pending.piece,
+pending.action
+);
+}
+
+captureActionConfirmYes.addEventListener(
+"click",
+confirmCaptureAction
+);
+
+captureActionConfirmNo.addEventListener(
+"click",
+()=>{
+
+closeCaptureActionConfirmation();
+
+message.textContent=
+"Срубание отменено. Выберите другое действие.";
+});
+
+function showActionDestinations(
+piece,
+actions
+){
+
+clearMoveHighlights();
+
+const destinationMap=new Map();
+
+actions.forEach(action=>{
+
+const point=
+getStatePoint(
+piece,
+action.state
+);
+
+if(!point)return;
+
+const key=
+point[0]+"-"+point[1];
+
+if(!destinationMap.has(key)){
+destinationMap.set(key,[]);
+}
+
+destinationMap.get(key).push(action);
+});
+
+destinationMap.forEach(
+(options,key)=>{
+
+const parts=key.split("-");
+
+const point=[
+Number(parts[0]),
+Number(parts[1])
+];
+
+const cell=
+getCell(
+point[0],
+point[1]
+);
+
+if(!cell)return;
+
+cell.classList.add(
+"move-option"
+);
+
+cell.classList.add(
+"max-move"
+);
+
+cell.onclick=event=>{
+
+event.preventDefault();
+
+event.stopPropagation();
+
+if(options.length>0){
+
+requestActionExecution(
+piece,
+options[0]
+);
+
+}
+
+};
+});
+
+const key=
+playerOrder[currentPlayerIndex];
+
+if(
+chainSixActive&&
+players[chainSixPlayer]
+){
+
+players[chainSixPlayer].pieces.forEach(
+otherPiece=>{
+
+if(
+otherPiece===piece||
+otherPiece.capturedBy!==null
+)return;
+
+const otherActions=
+getSingleDieOptions(
+otherPiece,
+6
+);
+
+if(otherActions.length>0){
+
+otherPiece.element.classList.add(
+"selectable"
+);
+}
+});
+
+}else if(players[key]){
+
+players[key].pieces.forEach(
+otherPiece=>{
+
+if(
+otherPiece===piece||
+otherPiece.capturedBy!==null
+)return;
+
+const otherActions=
+getPieceActions(
+otherPiece,
+remainingDice
+);
+
+if(otherActions.length>0){
+
+otherPiece.element.classList.add(
+"selectable"
+);
+}
+});
+}
+}
+
+function highlightPossibleMoves(piece){
+
+if(chainSixActive){
+
+    clearMoveHighlights();
+
+    if(piece.owner!==chainSixPlayer)return;
+
+    if(piece.capturedBy!==null){
+
+        openBuybackConfirmation(
+            piece,
+            true
+        );
+
+        return;
+    }
+
+    const actions=
+        getSingleDieOptions(
+            piece,
+            6
+        );
+
+    if(actions.length===0)return;
+
+    showActionDestinations(
+        piece,
+        actions
+    );
+
+    piece.element.classList.add(
+        "selectable"
+    );
+
+    message.textContent=
+        "Выберите, как использовать цепную шестёрку.";
+
+    return;
+}
+
+
+if(
+!diceRolled||
+remainingDice.length===0
+)
+return;
+
+
+const key=
+playerOrder[currentPlayerIndex];
+
+if(piece.owner!==key)return;
+
+if(piece.capturedBy!==null){
+
+    /*
+     * Пленную фишку можно выкупить только тогда,
+     * когда выкуп входит в максимальную
+     * последовательность использования кубиков.
+     */
+
+    const optimal=
+        plannerGetOptimalActions(
+            remainingDice
+        );
+
+    const allowedBuyback=
+        optimal.actions.some(
+            item=>
+                item.piece===piece&&
+                item.action.type==="buyback"
+        );
+
+    if(allowedBuyback){
+
+        openBuybackConfirmation(
+            piece,
+            false
+        );
+
+    }else{
+
+        message.textContent=
+            "Выкуп сейчас не является максимальным ходом.";
+
+    }
+
+    return;
+}
+
+
+/*
+ * ВАЖНО:
+ * Забираем действия ДО clearMoveHighlights(),
+ * потому что clearMoveHighlights() очищает
+ * piece._plannerActions.
+ */
+const actions=
+    piece._plannerActions||
+    [];
+
+
+/*
+ * Теперь можно очищать старую подсветку.
+ */
+clearMoveHighlights();
+
+
+if(actions.length===0){
+
+    message.textContent=
+        "Этот вариант не позволяет выполнить максимальный ход.";
+
+    showAllNormalOptions();
+
+    return;
+}
+
+
+showActionDestinations(
+    piece,
+    actions
+);
+
+piece.element.classList.add(
+    "selectable"
+);
+
+message.textContent=
+    "Выберите клетку для движения.";
+}
+
+function selectPiece(piece){
+
+if(gamePhase!=="playing")return;
+
+if(chainSixActive){
+
+if(piece.owner!==chainSixPlayer)return;
+
+if(piece.capturedBy!==null){
+
+openBuybackConfirmation(
+piece,
+true
+);
+
+return;
+}
+
+highlightPossibleMoves(piece);
+
+return;
+}
+
+const currentKey=
+playerOrder[currentPlayerIndex];
+
+if(piece.capturedBy!==null){
+
+if(piece.owner!==currentKey)return;
+
+if(
+!diceRolled||
+remainingDice.length===0
+){
+
+message.textContent=
+"Сначала бросьте кубики.";
+
+return;
+}
+
+
+/*
+ * Проверяем не просто наличие 6,
+ * а входит ли выкуп в максимальный
+ * вариант использования кубиков.
+ */
+
+const optimal=
+plannerGetOptimalActions(
+remainingDice
+);
+
+const allowedBuyback=
+optimal.actions.some(
+item=>
+    item.piece===piece&&
+    item.action.type==="buyback"
+);
+
+
+if(!allowedBuyback){
+
+    message.textContent=
+        "Сейчас выкупить эту фишку нельзя: есть более полный вариант использования кубиков.";
+
+    return;
+}
+
+
+openBuybackConfirmation(
+piece,
+false
+);
+
+return;
+}
+
+if(piece.owner!==currentKey)return;
+
+if(!diceRolled){
+
+message.textContent=
+"Сначала бросьте кубики.";
+
+return;
+}
+
+highlightPossibleMoves(piece);
+}
+
+function openBuybackConfirmation(
+piece,
+isChain
+){
+
+if(piece.capturedBy===null)return;
+
+const captor=
+players[piece.capturedBy];
+
+if(!captor)return;
+
+pendingBuybackPiece=piece;
+
+captureConfirmText.textContent=
+"Точно ли вы хотите выкупить эту фишку у "+
+captor.name+
+" игрока?";
+
+captureConfirm.style.display="block";
+}
+
+function closeBuybackConfirmation(){
+
+captureConfirm.style.display="none";
+pendingBuybackPiece=null;
+}
+
+function enqueueChainSix(playerKey){
+
+const existing=
+chainSixQueue.find(
+item=>item.playerKey===playerKey
+);
+
+if(existing){
+
+existing.count++;
+
+}else{
+
+chainSixQueue.push({
+playerKey,
+count:1
+});
+}
+}
+
+function playBuybackSound(){
+
+    if(!soundEnabled)
+        return;
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+        }
+
+        if(
+            audioContext.state===
+            "suspended"
+        ){
+
+            audioContext.resume();
+        }
+
+        const now=
+            audioContext.currentTime;
+
+        function tone(
+            time,
+            frequency,
+            volume,
+            duration
+        ){
+
+            const oscillator=
+                audioContext.createOscillator();
+
+            const gain=
+                audioContext.createGain();
+
+            oscillator.type="triangle";
+
+            oscillator.frequency.setValueAtTime(
+                frequency,
+                time
+            );
+
+            gain.gain.setValueAtTime(
+                0.0001,
+                time
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                volume,
+                time+0.004
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                time+duration
+            );
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            oscillator.start(time);
+            oscillator.stop(
+                time+duration
+            );
+        }
+
+        tone(now,620,0.20,0.10);
+        tone(now+0.07,880,0.16,0.14);
+
+    }catch(error){
+
+        console.log(
+            "Звук выкупа недоступен:",
+            error
+        );
+    }
+}
+
+function buybackPiece(){
+
+const piece=
+pendingBuybackPiece;
+
+if(!piece)return;
+
+const captorKey=
+piece.capturedBy;
+
+const captor=
+players[captorKey];
+
+if(!captor){
+
+closeBuybackConfirmation();
+return;
+}
+
+if(chainSixActive){
+
+if(piece.owner!==chainSixPlayer){
+
+closeBuybackConfirmation();
+return;
+}
+
+if(piece.capturedBy===null){
+
+closeBuybackConfirmation();
+return;
+}
+
+piece.capturedBy=null;
+piece.position=-1;
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+piece.atStart=false;
+
+if(piece.element){
+
+piece.element.classList.remove(
+"captive"
+);
+
+piece.element.classList.remove(
+"selectable"
+);
+}
+
+placePiece(piece);
+
+playBuybackSound();
+
+captor.bonusSixes++;
+
+enqueueChainSix(captorKey);
+
+chainSixRemaining--;
+
+closeBuybackConfirmation();
+
+clearMoveHighlights();
+
+message.textContent=
+"Фишка возвращена "+
+players[piece.owner].name+
+" игроку. "+
+captor.name+
+" игрок получил 6.";
+
+if(chainSixRemaining>0){
+
+const found=
+highlightAllAvailablePieces();
+
+if(found){
+
+message.textContent+=
+" Выберите действие для следующей шестёрки.";
+
+}else{
+
+chainSixRemaining=0;
+finishChainSixSequence();
+}
+
+}else{
+
+finishChainSixSequence();
+}
+
+return;
+}
+
+const currentKey=
+playerOrder[currentPlayerIndex];
+
+if(piece.owner!==currentKey){
+
+closeBuybackConfirmation();
+return;
+}
+
+if(piece.capturedBy===null){
+
+closeBuybackConfirmation();
+return;
+}
+
+const sixDieIndex=
+remainingDice.findIndex(
+die=>die.value===6
+);
+
+if(sixDieIndex<0){
+
+message.textContent=
+"Для выкупа нужна шестёрка.";
+
+closeBuybackConfirmation();
+
+return;
+}
+
+piece.capturedBy=null;
+piece.position=-1;
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+piece.atStart=false;
+
+if(piece.element){
+
+piece.element.classList.remove(
+"captive"
+);
+
+piece.element.classList.remove(
+"selectable"
+);
+}
+
+placePiece(piece);
+
+playBuybackSound();
+
+if(!captor.finished){
+
+captor.bonusSixes++;
+
+enqueueChainSix(captorKey);
+
+if(chainOriginNextIndex===null){
+
+chainOriginNextIndex=
+(currentPlayerIndex+1)%
+playerOrder.length;
+}
+}
+
+remainingDice.splice(
+sixDieIndex,
+1
+);
+
+syncRolledDiceFromRemaining();
+
+closeBuybackConfirmation();
+
+message.textContent=
+"Фишка возвращена "+
+players[piece.owner].name+
+" игроку. "+
+(
+captor.finished
+?"Полученная шестёрка сгорела."
+:captor.name+" игрок получил 6."
+);
+
+clearMoveHighlights();
+
+if(remainingDice.length>0){
+
+const found=
+showAllNormalOptions();
+
+if(!found){
+
+message.textContent=
+"Оставшийся кубик использовать нельзя. Он сгорает.";
+
+remainingDice=[];
+
+syncRolledDiceFromRemaining();
+
+finishNormalTurn();
+}
+
+}else{
+
+finishNormalTurn();
+}
+}
+
+function syncRolledDiceFromRemaining(){
+
+if(!rolledDice){
+
+rolledDice={
+d1:null,
+d2:null
+};
+}
+
+rolledDice.d1=null;
+rolledDice.d2=null;
+
+remainingDice.forEach(
+die=>{
+
+if(die.index===0){
+rolledDice.d1=die.value;
+}
+
+if(die.index===1){
+rolledDice.d2=die.value;
+}
+});
+
+dice1.textContent=
+rolledDice.d1===null
+?"—"
+:rolledDice.d1;
+
+dice2.textContent=
+rolledDice.d2===null
+?"—"
+:rolledDice.d2;
+
+updateDiceTotal();
+}
+
+function plannerSaveState(){
+
+    const saved=[];
+
+    Object.values(players).forEach(player=>{
+
+        player.pieces.forEach(piece=>{
+
+            saved.push({
+                piece:piece,
+                position:piece.position,
+                finishPosition:piece.finishPosition,
+                shelterIndex:piece.shelterIndex,
+                capturedBy:piece.capturedBy,
+                atStart:piece.atStart
+            });
+
+        });
+
+    });
+
+    return saved;
+}
+
+
+function plannerRestoreState(saved){
+
+    saved.forEach(item=>{
+
+        item.piece.position=item.position;
+        item.piece.finishPosition=item.finishPosition;
+        item.piece.shelterIndex=item.shelterIndex;
+        item.piece.capturedBy=item.capturedBy;
+        item.piece.atStart=item.atStart;
+
+    });
+}
+
+
+/*
+ * Логическое применение взятия для планировщика.
+ *
+ * Полностью повторяем смысл capturePiece().
+ *
+ * При взаимном срубании:
+ *
+ *  - сбитая вражеская фишка возвращается хозяину;
+ *  - пленная фишка атакующего возвращается хозяину;
+ *  - атакующая фишка ОСТАЁТСЯ на клетке.
+ */
+function plannerApplyCapture(
+    capturingPiece,
+    capturedPiece
+){
+
+    if(!capturedPiece)return false;
+
+    if(
+        capturedPiece.owner===
+        capturingPiece.owner
+    )return false;
+
+    if(
+        capturedPiece.capturedBy!==null
+    )return false;
+
+    if(
+        capturedPiece.shelterIndex>=0
+    )return false;
+
+
+    const mutualCapturedPiece=
+        players[capturingPiece.owner].pieces.find(
+            piece=>
+                piece.owner===capturingPiece.owner&&
+                piece.capturedBy===capturedPiece.owner
+        );
+
+
+    /*
+     * Взаимное срубание.
+     */
+    if(mutualCapturedPiece){
+
+        capturedPiece.capturedBy=null;
+        capturedPiece.position=-1;
+        capturedPiece.finishPosition=-1;
+        capturedPiece.shelterIndex=-1;
+        capturedPiece.atStart=false;
+
+
+        mutualCapturedPiece.capturedBy=null;
+        mutualCapturedPiece.position=-1;
+        mutualCapturedPiece.finishPosition=-1;
+        mutualCapturedPiece.shelterIndex=-1;
+        mutualCapturedPiece.atStart=false;
+
+
+        /*
+         * Атакующая фишка остаётся
+         * на клетке назначения.
+         */
+        return true;
+    }
+
+
+    /*
+     * Обычное пленение.
+     */
+    capturedPiece.capturedBy=
+        capturingPiece.owner;
+
+    capturedPiece.position=-1;
+    capturedPiece.finishPosition=-1;
+    capturedPiece.shelterIndex=-1;
+    capturedPiece.atStart=false;
+
+
+    return false;
+}
+
+
+/*
+ * Применение действия в логическом состоянии.
+ *
+ * Здесь ничего не анимируется и не меняется в DOM.
+ * Планировщик только моделирует результат действия,
+ * чтобы понять, какой следующий кубик реально можно
+ * использовать.
+ */
+function plannerApplyAction(
+    piece,
+    action
+){
+
+    /*
+     * Выкуп пленной фишки за 6.
+     */
+    if(action.type==="buyback"){
+
+        piece.capturedBy=null;
+        piece.position=-1;
+        piece.finishPosition=-1;
+        piece.shelterIndex=-1;
+        piece.atStart=false;
+
+        return;
+    }
+
+
+    /*
+     * Прыжок -> движение.
+     */
+    if(action.type==="postJump"){
+
+        const jumpCaptured=
+            action.jumpCapturedPiece||
+            null;
+
+
+        /*
+         * Сначала моделируем пленение
+         * на прыжке.
+         */
+        if(jumpCaptured){
+
+            const mutual=
+                plannerApplyCapture(
+                    piece,
+                    jumpCaptured
+                );
+
+
+            /*
+             * При взаимном срубании атакующая
+             * фишка всё равно остаётся на точке
+             * прыжка, как в реальной игре.
+             *
+             * Второе действие в таком случае
+             * всё равно может быть использовано.
+             */
+            if(mutual){
+
+                piece.position=
+                    action.state.position;
+
+                piece.finishPosition=-1;
+                piece.shelterIndex=-1;
+                piece.atStart=false;
+
+                return;
+            }
+        }
+
+
+        /*
+         * После прыжка выполняется обычное
+         * движение на второй кубик.
+         */
+        piece.position=
+            action.state.position;
+
+        piece.finishPosition=
+            action.state.finishPosition;
+
+        piece.shelterIndex=
+            action.state.shelterIndex;
+
+        piece.atStart=
+            action.state.atStart;
+
+
+        /*
+         * Если второе движение сбило другую
+         * фишку — применяем это пленение.
+         */
+        if(
+            action.capturedPiece&&
+            action.capturedPiece!==jumpCaptured
+        ){
+
+            plannerApplyCapture(
+                piece,
+                action.capturedPiece
+            );
+        }
+
+        return;
+    }
+
+
+    /*
+     * Движение -> прыжок.
+     *
+     * В action.state уже находится конечная
+     * позиция после прыжка.
+     */
+    if(action.type==="preJump"){
+
+        piece.position=
+            action.state.position;
+
+        piece.finishPosition=
+            action.state.finishPosition;
+
+        piece.shelterIndex=
+            action.state.shelterIndex;
+
+        piece.atStart=
+            action.state.atStart;
+
+
+        if(action.capturedPiece){
+
+            plannerApplyCapture(
+                piece,
+                action.capturedPiece
+            );
+        }
+
+        return;
+    }
+
+
+    /*
+     * Обычный ход.
+     * Сюда также попадает:
+     *
+     *  - движение одним кубиком;
+     *  - объединённый ход двумя кубиками;
+     *  - выход по 6;
+     *  - обычный прыжок.
+     */
+    if(action.state){
+
+        piece.position=
+            action.state.position;
+
+        piece.finishPosition=
+            action.state.finishPosition;
+
+        piece.shelterIndex=
+            action.state.shelterIndex;
+
+        piece.atStart=
+            action.state.atStart;
+    }
+
+
+    if(action.capturedPiece){
+
+        plannerApplyCapture(
+            piece,
+            action.capturedPiece
+        );
+    }
+}
+
+
+function plannerGetActions(
+    availableDice
+){
+
+    const key=
+        playerOrder[currentPlayerIndex];
+
+    const player=
+        players[key];
+
+
+    if(
+        !player||
+        player.finished
+    ){
+
+        return[];
+    }
+
+
+    const actions=[];
+
+
+    /*
+     * Все обычные действия всех своих
+     * незахваченных фишек.
+     */
+    player.pieces.forEach(piece=>{
+
+        if(piece.capturedBy!==null)
+            return;
+
+
+        const pieceActions=
+            getPieceActions(
+                piece,
+                availableDice
+            );
+
+
+        pieceActions.forEach(action=>{
+
+            actions.push({
+                piece:piece,
+                action:action
+            });
+
+        });
+
+    });
+
+
+       /*
+     * Выкуп пленной фишки за 6.
+     *
+     * ВАЖНО:
+     *
+     * Если есть второй кубик и существует
+     * последовательность:
+     *
+     * 6 -> выход новой фишки -> второй кубик,
+     *
+     * то выкуп пленной фишки НЕ является
+     * максимальным вариантом.
+     *
+     * Поэтому здесь мы временно проверяем,
+     * можно ли после выхода новой фишки
+     * использовать другой кубик.
+     */
+
+    const six=
+        availableDice.find(
+            die=>die.value===6
+        );
+
+
+    let exitCanContinue=false;
+
+
+    if(
+        six&&
+        availableDice.length>=2
+    ){
+
+        const otherDice=
+            availableDice.filter(
+                die=>
+                    die.index!==six.index
+            );
+
+
+        player.pieces.forEach(piece=>{
+
+            /*
+             * Берём только фишки,
+             * находящиеся в резерве.
+             */
+            if(
+                piece.capturedBy!==null||
+                piece.position!==-1||
+                piece.finishPosition!==-1||
+                piece.shelterIndex!==-1||
+                piece.atStart
+            ){
+                return;
+            }
+
+
+            /*
+             * Моделируем выход по 6.
+             */
+            const exitOptions=
+                getSingleDieOptions(
+                    piece,
+                    6
+                );
+
+
+            if(exitOptions.length===0)
+                return;
+
+
+            const exitAction=
+                exitOptions.find(
+                    action=>
+                        action.type==="exit"
+                );
+
+
+            if(!exitAction)
+                return;
+
+
+            const saved=
+                plannerSaveState();
+
+
+            /*
+             * Фишка выходит на старт.
+             */
+            plannerApplyAction(
+                piece,
+                exitAction
+            );
+
+
+            /*
+             * Проверяем каждый другой кубик.
+             *
+             * Если хотя бы один из них
+             * можно использовать после выхода,
+             * значит 6 нельзя тратить на выкуп,
+             * если целью является максимальное
+             * использование кубиков.
+             */
+            for(
+                const otherDie of otherDice
+            ){
+
+                const nextActions=
+                    getSingleDieOptions(
+                        piece,
+                        otherDie.value
+                    );
+
+
+                if(
+                    nextActions.length>0
+                ){
+
+                    exitCanContinue=true;
+
+                    break;
+                }
+            }
+
+
+            plannerRestoreState(saved);
+
+        });
+    }
+
+
+    /*
+     * Добавляем выкуп только тогда,
+     * когда выход по 6 НЕ позволяет
+     * использовать второй кубик.
+     */
+    if(six){
+
+        player.pieces.forEach(piece=>{
+
+            if(piece.capturedBy===null)
+                return;
+
+
+            /*
+             * Если после выхода новой фишки
+             * можно использовать второй кубик,
+             * выкуп сейчас не добавляем.
+             */
+            if(exitCanContinue)
+                return;
+
+
+            actions.push({
+
+                piece:piece,
+
+                action:{
+                    type:"buyback",
+
+                    dieIndex:six.index,
+                    dieValue:6,
+
+                    dieIndices:[
+                        six.index
+                    ],
+
+                    capturedPiece:null,
+                    state:null
+                }
+
+            });
+
+        });
+    }
+
+
+    return actions;
+}
+
+
+function plannerRemoveUsedDice(
+    availableDice,
+    action
+){
+
+    const used=
+        action.dieIndices||
+        [action.dieIndex];
+
+
+    return availableDice.filter(
+        die=>
+            !used.includes(die.index)
+    );
+}
+
+
+function plannerBestScore(
+    availableDice
+){
+
+    if(
+        !availableDice||
+        availableDice.length===0
+    ){
+
+        return{
+            count:0,
+            sum:0
+        };
+    }
+
+
+    const actions=
+        plannerGetActions(
+            availableDice
+        );
+
+
+    if(actions.length===0){
+
+        return{
+            count:0,
+            sum:0
+        };
+    }
+
+
+    let best={
+        count:0,
+        sum:0
+    };
+
+
+    for(const item of actions){
+
+        const saved=
+            plannerSaveState();
+
+
+        plannerApplyAction(
+            item.piece,
+            item.action
+        );
+
+
+        const remaining=
+            plannerRemoveUsedDice(
+                availableDice,
+                item.action
+            );
+
+
+        let usedSum=0;
+
+
+        if(item.action.dieIndices){
+
+            item.action.dieIndices.forEach(
+                index=>{
+
+                    const die=
+                        availableDice.find(
+                            d=>d.index===index
+                        );
+
+                    if(die)
+                        usedSum+=die.value;
+                }
+            );
+
+        }else{
+
+            const die=
+                availableDice.find(
+                    d=>
+                        d.index===
+                        item.action.dieIndex
+                );
+
+            if(die)
+                usedSum+=die.value;
+        }
+
+
+        const future=
+            plannerBestScore(
+                remaining
+            );
+
+
+        const total={
+            count:
+                item.action.dieIndices
+                ?item.action.dieIndices.length
+                :1
+                +
+                future.count,
+
+            sum:
+                usedSum+
+                future.sum
+        };
+
+
+        /*
+         * Важно:
+         * из-за приоритета операторов
+         * count записываем отдельно.
+         */
+
+        total.count=
+            (
+                item.action.dieIndices
+                ?item.action.dieIndices.length
+                :1
+            )+
+            future.count;
+
+
+        if(
+            total.count>best.count||
+            (
+                total.count===best.count&&
+                total.sum>best.sum
+            )
+        ){
+
+            best=total;
+        }
+
+
+        plannerRestoreState(saved);
+
+
+        if(
+            best.count>=availableDice.length
+        ){
+
+            break;
+        }
+    }
+
+
+    return best;
+}
+
+
+function plannerGetOptimalActions(
+    availableDice
+){
+
+    /*
+     * Определяем лучший возможный результат:
+     *
+     * 1. максимум количества кубиков;
+     * 2. при равенстве — максимум суммы
+     *    значений использованных кубиков.
+     */
+
+    const maximum=
+        plannerBestScore(
+            availableDice
+        );
+
+
+    const result=[];
+
+
+    const actions=
+        plannerGetActions(
+            availableDice
+        );
+
+
+    for(const item of actions){
+
+        const saved=
+            plannerSaveState();
+
+
+        plannerApplyAction(
+            item.piece,
+            item.action
+        );
+
+
+        const remaining=
+            plannerRemoveUsedDice(
+                availableDice,
+                item.action
+            );
+
+
+        const usedCount=
+            item.action.dieIndices
+            ?item.action.dieIndices.length
+            :1;
+
+
+        let usedSum=0;
+
+
+        if(item.action.dieIndices){
+
+            item.action.dieIndices.forEach(
+                index=>{
+
+                    const die=
+                        availableDice.find(
+                            d=>d.index===index
+                        );
+
+                    if(die)
+                        usedSum+=die.value;
+                }
+            );
+
+        }else{
+
+            const die=
+                availableDice.find(
+                    d=>
+                        d.index===
+                        item.action.dieIndex
+                );
+
+            if(die)
+                usedSum+=die.value;
+        }
+
+
+        const future=
+            plannerBestScore(
+                remaining
+            );
+
+
+        const totalCount=
+            usedCount+
+            future.count;
+
+
+        const totalSum=
+            usedSum+
+            future.sum;
+
+
+        plannerRestoreState(saved);
+
+
+        /*
+         * Первое действие оставляем только тогда,
+         * когда оно приводит к лучшему результату
+         * по обоим нашим критериям.
+         */
+
+        if(
+            totalCount===maximum.count&&
+            totalSum===maximum.sum
+        ){
+
+            result.push(item);
+        }
+    }
+
+
+    return{
+        maximum:
+            maximum.count,
+
+        maximumSum:
+            maximum.sum,
+
+        actions:result
+    };
+}
+
+
+function showAllNormalOptions(){
+
+    clearMoveHighlights();
+
+    if(remainingDice.length===0)
+        return false;
+
+    const key=
+        playerOrder[currentPlayerIndex];
+
+    const player=
+        players[key];
+
+    if(
+        !player||
+        player.finished
+    ){
+
+        return false;
+    }
+
+    //
+    // Получаем только действия, которые
+    // входят в максимально возможную
+    // последовательность.
+    //
+    const optimal=
+        plannerGetOptimalActions(
+            remainingDice
+        );
+
+    const allowed=
+        optimal.actions;
+
+    if(allowed.length===0){
+
+        skipButton.style.display=
+            "inline-block";
+
+        skipButton.disabled=false;
+
+        message.textContent=
+            "Нет допустимых ходов.";
+
+        return false;
+    }
+
+    //
+    // Запоминаем разрешённые действия
+    // для каждой фишки.
+    //
+    const byPiece=
+        new Map();
+
+    allowed.forEach(item=>{
+
+        if(!byPiece.has(item.piece)){
+
+            byPiece.set(
+                item.piece,
+                []
+            );
+        }
+
+        byPiece
+            .get(item.piece)
+            .push(item.action);
+
+    });
+
+    //
+    // Подсвечиваем только те фишки,
+    // которые участвуют хотя бы в одном
+    // максимальном варианте.
+    //
+    byPiece.forEach(
+        (actions,piece)=>{
+
+            piece.element.classList.add(
+                "selectable"
+            );
+
+            piece._plannerActions=
+                actions;
+        }
+    );
+
+    //
+    // Пленные фишки с шестёркой.
+    //
+    const hasSix=
+        remainingDice.some(
+            die=>die.value===6
+        );
+
+    if(hasSix){
+
+        player.pieces.forEach(piece=>{
+
+            if(
+                piece.capturedBy===null
+            )
+                return;
+
+            const hasBuyback=
+                allowed.some(
+                    item=>
+                        item.piece===piece&&
+                        item.action.type==="buyback"
+                );
+
+            if(hasBuyback){
+
+                piece.element.classList.add(
+                    "selectable"
+                );
+
+                piece._plannerActions=
+                    allowed
+                    .filter(
+                        item=>
+                            item.piece===piece
+                    )
+                    .map(
+                        item=>item.action
+                    );
+            }
+
+        });
+    }
+
+    skipButton.style.display="none";
+    skipButton.disabled=true;
+
+    message.textContent=
+        "Выберите фишку для максимально возможного хода.";
+
+    return true;
+}
+
+async function executeSingleAction(
+piece,
+action
+){
+
+if(chainSixActive){
+
+    await executeChainSixAction(
+        piece,
+        action
+    );
+
+    return;
+}
+
+if(remainingDice.length===0)return;
+
+//
+// Сохраняем состояние НЕПОСРЕДСТВЕННО
+// перед выполнением действия.
+//
+saveTurnState();
+
+rollButton.disabled=true;
+skipButton.disabled=true;
+
+clearMoveHighlights();
+
+piece.element.classList.remove(
+    "selectable"
+);
+
+if(action.type==="postJump"){
+
+    await animateJump(
+        piece,
+        action.firstJumpValue
+    );
+
+    if(piece.capturedBy===null){
+
+        await animateNormalSteps(
+            piece,
+            action.secondSteps
+        );
+    }
+
+}else if(action.type==="preJump"){
+
+    await animateNormalSteps(
+        piece,
+        action.firstSteps
+    );
+
+    if(piece.capturedBy===null){
+
+        await animateJump(
+            piece,
+            action.jumpValue
+        );
+    }
+
+}else if(action.type==="exit"){
+
+    await animateExit(piece);
+
+}else if(action.type==="jump"){
+
+    await animateJump(
+        piece,
+        action.steps
+    );
+
+}else{
+
+    await animateNormalSteps(
+        piece,
+        action.steps
+    );
+}
+
+
+//
+// Списываем использованные кубики.
+//
+if(
+    action.type==="combined"||
+    action.type==="preJump"||
+    action.type==="postJump"
+){
+
+    action.dieIndices.forEach(
+        index=>{
+
+            const diePosition=
+                remainingDice.findIndex(
+                    die=>die.index===index
+                );
+
+            if(diePosition>=0){
+
+                remainingDice.splice(
+                    diePosition,
+                    1
+                );
+            }
+        }
+    );
+
+}else{
+
+    const diePosition=
+        remainingDice.findIndex(
+            die=>die.index===action.dieIndex
+        );
+
+    if(diePosition>=0){
+
+        remainingDice.splice(
+            diePosition,
+            1
+        );
+    }
+}
+
+syncRolledDiceFromRemaining();
+
+//
+// Проверяем завершение игрока.
+// Сам переход к следующему игроку пока НЕ делаем.
+//
+const finishedNow=
+    getFinishedPieceCount(piece.owner)>=
+    PIECES_PER_PLAYER;
+
+if(finishedNow){
+
+    turnAwaitingConfirmation=true;
+
+    clearMoveHighlights();
+
+    rollButton.disabled=true;
+    skipButton.disabled=true;
+
+    message.textContent=
+        "Все фишки в доме. Подтвердите ход.";
+
+    updateTurnButtons();
+
+    return;
+}
+
+
+//
+// Если остались кубики.
+//
+if(remainingDice.length>0){
+
+    const found=
+        showAllNormalOptions();
+
+    rollButton.disabled=true;
+
+    if(found){
+
+        skipButton.style.display="none";
+        skipButton.disabled=true;
+
+        message.textContent=
+            "Выберите следующее действие.";
+
+    }else{
+
+        //
+        // Оставшийся кубик использовать нельзя.
+        // Он сгорает, но ход всё равно должен
+        // быть подтверждён.
+        //
+        remainingDice=[];
+
+        syncRolledDiceFromRemaining();
+
+        clearMoveHighlights();
+
+        turnAwaitingConfirmation=true;
+
+        message.textContent=
+            "Больше допустимых действий нет. Подтвердите ход.";
+    }
+
+    updateTurnButtons();
+
+    return;
+}
+
+
+//
+// Все кубики использованы.
+// Ход НЕ заканчиваем автоматически.
+//
+clearMoveHighlights();
+
+rollButton.disabled=true;
+skipButton.disabled=true;
+
+turnAwaitingConfirmation=true;
+
+message.textContent=
+    "Ход выполнен. Нажмите «Подтверждаю».";
+
+updateTurnButtons();
+}
+
+async function animateExit(piece){
+
+piece.position=-1;
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+piece.capturedBy=null;
+piece.atStart=true;
+
+placePiece(piece);
+
+playPieceMoveSound();
+
+await delay(300);
+}
+
+async function animateJump(
+piece,
+jumpValue
+){
+
+const target=
+getJumpTarget(
+piece,
+jumpValue
+);
+
+if(!target)return;
+
+const capturable=
+target.capturedPiece||
+getCapturablePiece(
+piece,
+target.point
+);
+
+if(capturable){
+
+const mutualCapturedPiece=
+players[piece.owner].pieces.find(
+p=>
+p.owner===piece.owner&&
+p.capturedBy===capturable.owner
+);
+
+if(mutualCapturedPiece){
+
+piece.position=
+target.position;
+
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+piece.atStart=false;
+
+placePiece(piece);
+
+await delay(300);
+
+const mutualCapture=
+capturePiece(
+piece,
+capturable
+);
+
+if(mutualCapture){
+
+await delay(300);
+return;
+}
+
+}else{
+
+const mutualCapture=
+capturePiece(
+piece,
+capturable
+);
+
+if(mutualCapture){
+
+await delay(300);
+return;
+}
+}
+}
+
+piece.position=
+target.position;
+
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+piece.atStart=false;
+
+placePiece(piece);
+
+playPieceMoveSound();
+
+await delay(300);
+}
+
+async function animateNormalSteps(
+piece,
+steps
+){
+
+/*
+ * ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА.
+ *
+ * Перед началом анимации убеждаемся,
+ * что весь ход целиком физически возможен.
+ *
+ * Если хотя бы одна промежуточная клетка
+ * заблокирована своей фишкой — ход
+ * вообще не начинается.
+ */
+const checkState={
+    position:piece.position,
+    finishPosition:piece.finishPosition,
+    shelterIndex:piece.shelterIndex,
+    atStart:piece.atStart,
+    capturedPiece:null
+};
+
+const checkResult=
+    simulateNormalMove(
+        piece,
+        steps,
+        checkState
+    );
+
+if(!checkResult){
+
+    message.textContent=
+        "Ход невозможен: путь заблокирован.";
+
+    return false;
+}
+
+const owner=
+players[piece.owner];
+
+if(piece.atStart){
+
+piece.atStart=false;
+piece.position=-1;
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+
+await delay(100);
+
+for(let i=0;i<steps;i++){
+
+const next=i;
+
+if(next>=owner.track.length)return;
+
+const point=
+owner.track[next];
+
+const blocker=
+getTrackPieceAtPoint(
+point,
+piece
+);
+
+if(blocker){
+
+if(blocker.owner===piece.owner)return;
+
+if(i!==steps-1)return;
+
+const mutualCapturedPiece=
+players[piece.owner].pieces.find(
+p=>
+p.owner===piece.owner&&
+p.capturedBy===blocker.owner
+);
+
+if(mutualCapturedPiece){
+
+piece.position=next;
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+piece.atStart=false;
+
+placePiece(piece);
+
+await delay(300);
+
+const mutualCapture=
+capturePiece(
+piece,
+blocker
+);
+
+if(mutualCapture){
+
+await delay(300);
+return;
+}
+
+}else{
+
+const mutualCapture=
+capturePiece(
+piece,
+blocker
+);
+
+if(mutualCapture){
+
+await delay(300);
+return;
+}
+}
+}
+
+piece.position=next;
+piece.finishPosition=-1;
+piece.shelterIndex=-1;
+piece.atStart=false;
+
+placePiece(piece);
+
+playPieceMoveSound();
+
+await delay(250);
+}
+
+enterShelterIfPossible(piece);
+
+return;
+}
+
+if(piece.shelterIndex>=0){
+
+const shelter=
+shelterData[piece.shelterIndex];
+
+const entry=shelter.entry;
+
+if(getAnyPieceAtPoint(
+entry,
+piece
+))return;
+
+let entryIndex=-1;
+
+for(let i=0;i<owner.track.length;i++){
+
+const point=owner.track[i];
+
+if(
+point[0]===entry[0]&&
+point[1]===entry[1]
+){
+
+entryIndex=i;
+
+break;
+}
+}
+
+if(entryIndex<0)return;
+
+piece.position=entryIndex;
+piece.shelterIndex=-1;
+
+placePiece(piece);
+
+await delay(250);
+}
+
+for(let i=0;i<steps;i++){
+
+if(piece.finishPosition>=0){
+
+const next=
+piece.finishPosition+1;
+
+if(next>=owner.finish.length)return;
+
+const point=
+owner.finish[next];
+
+if(
+getAnyPieceAtPoint(
+point,
+piece
+)
+)return;
+
+piece.finishPosition=next;
+
+placePiece(piece);
+
+playPieceMoveSound();
+
+await delay(250);
+
+continue;
+}
+
+const next=
+piece.position+1;
+
+if(next>=owner.track.length){
+
+const homePoint=
+owner.finish[0];
+
+if(
+getAnyPieceAtPoint(
+homePoint,
+piece
+)
+)return;
+
+piece.finishPosition=0;
+
+piece.position=
+owner.track.length-1;
+
+piece.atStart=false;
+
+placePiece(piece);
+
+await delay(250);
+
+continue;
+}
+
+const point=
+owner.track[next];
+
+const blocker=
+getTrackPieceAtPoint(
+point,
+piece
+);
+
+if(blocker){
+
+if(blocker.owner===piece.owner)return;
+
+if(i===steps-1){
+
+const mutualCapturedPiece=
+players[piece.owner].pieces.find(
+p=>
+p.owner===piece.owner&&
+p.capturedBy===blocker.owner
+);
+
+if(mutualCapturedPiece){
+
+piece.position=next;
+piece.atStart=false;
+piece.shelterIndex=-1;
+piece.finishPosition=-1;
+
+placePiece(piece);
+
+await delay(300);
+
+const mutualCapture=
+capturePiece(
+piece,
+blocker
+);
+
+if(mutualCapture){
+
+await delay(300);
+return;
+}
+
+}else{
+
+const mutualCapture=
+capturePiece(
+piece,
+blocker
+);
+
+if(mutualCapture){
+
+await delay(300);
+return;
+}
+}
+
+}else{
+
+return;
+}
+}
+
+piece.position=next;
+piece.atStart=false;
+
+placePiece(piece);
+
+playPieceMoveSound();
+
+if(i===steps-1){
+
+enterShelterIfPossible(piece);
+}
+
+await delay(250);
+}
+}
+
+function playCaptureSound(){
+
+    if(!soundEnabled)
+        return;
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+        }
+
+        if(
+            audioContext.state===
+            "suspended"
+        ){
+
+            audioContext.resume();
+        }
+
+        const now=
+            audioContext.currentTime;
+
+        const oscillator=
+            audioContext.createOscillator();
+
+        const gain=
+            audioContext.createGain();
+
+        oscillator.type="triangle";
+
+        oscillator.frequency.setValueAtTime(
+            210,
+            now
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            75,
+            now+0.09
+        );
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.32,
+            now+0.003
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now+0.11
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start(now);
+        oscillator.stop(now+0.12);
+
+    }catch(error){
+
+        console.log(
+            "Звук сруба недоступен:",
+            error
+        );
+    }
+}
+
+function capturePiece(
+capturingPiece,
+capturedPiece
+){
+
+if(!capturedPiece)return false;
+
+if(
+capturedPiece.owner===
+capturingPiece.owner
+)return false;
+
+if(capturedPiece.capturedBy!==null)return false;
+
+if(capturedPiece.shelterIndex>=0)return false;
+
+const mutualCapturedPiece=
+players[capturingPiece.owner].pieces.find(
+piece=>
+piece.owner===capturingPiece.owner&&
+piece.capturedBy===capturedPiece.owner
+);
+
+if(mutualCapturedPiece){
+
+capturedPiece.capturedBy=null;
+capturedPiece.position=-1;
+capturedPiece.finishPosition=-1;
+capturedPiece.shelterIndex=-1;
+capturedPiece.atStart=false;
+
+if(capturedPiece.element){
+
+capturedPiece.element.classList.remove(
+"captive"
+);
+
+capturedPiece.element.classList.remove(
+"selectable"
+);
+}
+
+mutualCapturedPiece.capturedBy=null;
+mutualCapturedPiece.position=-1;
+mutualCapturedPiece.finishPosition=-1;
+mutualCapturedPiece.shelterIndex=-1;
+mutualCapturedPiece.atStart=false;
+
+if(mutualCapturedPiece.element){
+
+mutualCapturedPiece.element.classList.remove(
+"captive"
+);
+
+mutualCapturedPiece.element.classList.remove(
+"selectable"
+);
+}
+
+placePiece(capturedPiece);
+placePiece(mutualCapturedPiece);
+
+playCaptureSound();
+
+vibrateGame(80);
+
+requestAnimationFrame(()=>{
+
+placePiece(capturedPiece);
+placePiece(mutualCapturedPiece);
+
+});
+
+message.textContent=
+"Взаимное срубание. Обе фишки возвращены своим игрокам.";
+
+return true;
+}
+
+capturedPiece.capturedBy=
+capturingPiece.owner;
+
+capturedPiece.position=-1;
+capturedPiece.finishPosition=-1;
+capturedPiece.shelterIndex=-1;
+capturedPiece.atStart=false;
+
+capturedPiece.element.classList.add(
+"captive"
+);
+
+placePiece(capturedPiece);
+
+playCaptureSound();
+
+vibrateGame(80);
+
+message.textContent=
+"Фишка "+
+players[capturedPiece.owner].name+
+" игрока срублена и взята в плен.";
+
+return false;
+}
+
+function getFinishedPieceCount(playerKey){
+
+const player=players[playerKey];
+
+if(!player)return 0;
+
+return player.pieces.filter(
+piece=>piece.finishPosition>=0
+).length;
+}
+
+function checkPlayerFinished(playerKey){
+
+if(gamePhase!=="playing")return false;
+
+const player=players[playerKey];
+
+if(!player)return false;
+
+if(player.finished)return true;
+
+const count=
+getFinishedPieceCount(playerKey);
+
+if(count<PIECES_PER_PLAYER)return false;
+
+finishPlayer(playerKey);
+
+return true;
+}
+
+function playVictorySound(){
+
+    if(!soundEnabled)
+        return;
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+        }
+
+        if(
+            audioContext.state===
+            "suspended"
+        ){
+
+            audioContext.resume();
+        }
+
+        const now=
+            audioContext.currentTime;
+
+        function tone(
+            time,
+            frequency,
+            volume,
+            duration
+        ){
+
+            const oscillator=
+                audioContext.createOscillator();
+
+            const gain=
+                audioContext.createGain();
+
+            oscillator.type="triangle";
+
+            oscillator.frequency.setValueAtTime(
+                frequency,
+                time
+            );
+
+            gain.gain.setValueAtTime(
+                0.0001,
+                time
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                volume,
+                time+0.004
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                time+duration
+            );
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            oscillator.start(time);
+            oscillator.stop(
+                time+duration
+            );
+        }
+
+        tone(now,520,0.20,0.12);
+        tone(now+0.10,660,0.20,0.12);
+        tone(now+0.20,880,0.24,0.20);
+
+    }catch(error){
+
+        console.log(
+            "Звук победы недоступен:",
+            error
+        );
+    }
+}
+
+function finishPlayer(playerKey){
+
+const player=players[playerKey];
+
+if(!player||player.finished)return;
+
+player.finished=true;
+
+assignFinishPlace(playerKey);
+
+if(player.place===1){
+
+    playVictorySound();
+
+}
+
+if(
+    playerKey===humanColor
+){
+
+    fastForwardButton.style.display="block";
+
+    message.textContent=
+        "Вы заняли 1 место. Можно дождаться окончания партии или пропустить игру ботов.";
+}
+
+remainingDice=[];
+rolledDice=null;
+diceRolled=false;
+
+syncRolledDiceFromRemaining();
+
+clearMoveHighlights();
+
+skipButton.style.display="none";
+skipButton.disabled=true;
+
+rollButton.disabled=true;
+
+message.textContent=
+player.name+
+" игрок загнал все пять фишек в дом и занял "+
+player.place+
+" место!";
+
+const activePlayers=
+getActivePlayers();
+
+if(activePlayers.length<=1){
+
+if(activePlayers.length===1){
+
+const lastPlayer=
+players[activePlayers[0]];
+
+if(lastPlayer.place===null){
+
+    assignFinishPlace(activePlayers[0]);
+
+    lastPlayer.finished=true;
+
+}
+
+}
+
+gamePhase="finished";
+
+setTimeout(
+showFinishWindow,
+400
+);
+
+return;
+}
+
+if(!fastForwardMode){
+
+      finishNormalTurn();
+
+ }else{
+
+    setTimeout(
+        finishNormalTurn,
+        350
+    );
+
+}
+
+} 
+
+function findNextActivePlayerIndex(fromIndex){
+
+if(!playerOrder.length)return -1;
+
+for(
+let step=1;
+step<=playerOrder.length;
+step++
+){
+
+const index=
+(fromIndex+step)%
+playerOrder.length;
+
+const key=
+playerOrder[index];
+
+if(
+players[key]&&
+!players[key].finished
+){
+
+return index;
+}
+}
+
+return -1;
+}
+
+function playResultsSound(){
+
+    if(!soundEnabled)
+        return;
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+        }
+
+        if(
+            audioContext.state===
+            "suspended"
+        ){
+
+            audioContext.resume();
+        }
+
+        const now=
+            audioContext.currentTime;
+
+        const oscillator=
+            audioContext.createOscillator();
+
+        const gain=
+            audioContext.createGain();
+
+        oscillator.type="triangle";
+
+        oscillator.frequency.setValueAtTime(
+            420,
+            now
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            300,
+            now+0.20
+        );
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.16,
+            now+0.004
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now+0.24
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start(now);
+        oscillator.stop(now+0.25);
+
+    }catch(error){
+
+        console.log(
+            "Звук результатов недоступен:",
+            error
+        );
+    }
+}
+
+function showFinishWindow(){
+
+stopTurnTimer();
+
+gamePhase="finished";
+
+playResultsSound();
+
+finishOverlay.style.display="block";
+finishWindow.style.display="block";
+
+finishResults.innerHTML="";
+
+const results=
+Object.values(players)
+.filter(player=>player.place!==null)
+.sort(
+(a,b)=>a.place-b.place
+);
+
+results.forEach(player=>{
+
+const row=
+document.createElement("div");
+
+row.className="finish-result";
+
+const placeText=
+player.place===1?"🥇 1 место":
+player.place===2?"🥈 2 место":
+player.place===3?"🥉 3 место":
+"4 место";
+
+row.innerHTML=
+`<span class="finish-place">${placeText}</span> — <span class="player-${player.color}">${player.name.replace("зелёного","зелёный").replace("красного","красный").replace("синего","синий").replace("чёрного","чёрный")} игрок</span>`;
+
+finishResults.appendChild(row);
+});
+
+finishSubtitle.textContent=
+"Поздравляем победителей! Все места определены.";
+}
+
+function fastForwardToResults(){
+
+    if(
+        gamePhase!=="playing"
+    )
+        return;
+
+    const humanPlayer=
+        players[humanColor];
+
+    if(
+        !humanPlayer||
+        humanPlayer.place===null
+    )
+        return;
+
+    fastForwardMode=true;
+
+    fastForwardButton.style.display="none";
+
+    stopTurnTimer();
+
+    message.textContent=
+        "Партия ускоренно завершается...";
+
+    finishNormalTurn();
+}
+
+function restartGame(){
+
+location.reload();
+}
+
+function startChainSix(
+playerKey,
+count=null,
+originIndex=null
+){
+
+const player=players[playerKey];
+
+if(!player)return;
+
+stopTurnTimer();
+
+if(player.finished){
+
+finishChainSixSequence();
+return;
+}
+
+if(count===null){
+count=player.bonusSixes;
+}
+
+if(count<=0){
+
+finishChainSixSequence();
+return;
+}
+
+player.bonusSixes=
+Math.max(
+0,
+player.bonusSixes-count
+);
+
+chainSixActive=true;
+chainSixPlayer=playerKey;
+chainSixRemaining=count;
+
+if(originIndex!==null){
+
+chainOriginNextIndex=
+originIndex;
+}
+
+currentPlayerIndex=
+playerOrder.indexOf(
+playerKey
+);
+
+diceRolled=false;
+rolledDice=null;
+remainingDice=[];
+possibleMoves=[];
+
+skipButton.style.display="none";
+skipButton.disabled=true;
+
+rollButton.disabled=true;
+
+dice1.style.display="flex";
+dice2.style.display="flex";
+
+dice1.textContent="6";
+dice2.textContent="6";
+
+total.textContent=
+String(
+chainSixRemaining*6
+);
+
+updateCurrentPlayer();
+
+currentPlayerElement.textContent=
+"Цепная шестёрка: ход "+
+player.name+
+" игрока";
+
+currentPlayerElement.className=
+"current-player player-"+
+player.color;
+
+const found=
+highlightAllAvailablePieces();
+
+if(!found){
+
+message.textContent=
+"У "+
+player.name+
+" игрока нет допустимого действия на 6. Шестёрки сгорают.";
+
+chainSixRemaining=0;
+
+setTimeout(
+()=>{
+finishChainSixSequence();
+},
+350
+);
+
+return;
+}
+
+message.textContent=
+"Цепная шестёрка. Осталось шестёрок: "+
+chainSixRemaining+
+". Выберите действие.";
+}
+
+async function executeChainSixAction(
+piece,
+action
+){
+
+if(!chainSixActive)return;
+
+if(piece.owner!==chainSixPlayer)return;
+
+rollButton.disabled=true;
+skipButton.disabled=true;
+
+clearMoveHighlights();
+
+if(action.type==="exit"){
+
+await animateExit(piece);
+
+}else if(action.type==="jump"){
+
+await animateJump(
+piece,
+6
+);
+
+}else{
+
+await animateNormalSteps(
+piece,
+6
+);
+}
+
+if(checkPlayerFinished(piece.owner)){
+
+chainSixRemaining=0;
+return;
+}
+
+chainSixRemaining--;
+
+if(chainSixRemaining>0){
+
+const found=
+highlightAllAvailablePieces();
+
+if(found){
+
+message.textContent=
+"Цепная шестёрка. Осталось шестёрок: "+
+chainSixRemaining+
+". Выберите следующее действие.";
+
+return;
+}
+
+chainSixRemaining=0;
+
+finishChainSixSequence();
+
+return;
+}
+
+finishChainSixSequence();
+}
+
+function finishChainSixSequence(){
+
+chainSixActive=false;
+chainSixPlayer=null;
+chainSixRemaining=0;
+
+diceRolled=false;
+rolledDice=null;
+remainingDice=[];
+possibleMoves=[];
+
+clearMoveHighlights();
+
+skipButton.style.display="none";
+skipButton.disabled=false;
+
+rollButton.disabled=false;
+
+dice1.textContent="—";
+dice2.textContent="—";
+total.textContent="—";
+
+while(chainSixQueue.length>0){
+
+const next=
+chainSixQueue.shift();
+
+if(!next||next.count<=0)continue;
+
+const player=
+players[next.playerKey];
+
+if(!player)continue;
+
+if(player.finished)continue;
+
+if(player.bonusSixes<=0)continue;
+
+startChainSix(
+next.playerKey,
+Math.min(
+next.count,
+player.bonusSixes
+),
+chainOriginNextIndex
+);
+
+return;
+}
+
+if(chainOriginNextIndex!==null){
+
+let nextIndex=
+findNextActivePlayerIndex(
+chainOriginNextIndex-1
+);
+
+if(nextIndex<0){
+showFinishWindow();
+return;
+}
+
+currentPlayerIndex=nextIndex;
+
+}else{
+
+const nextIndex=
+findNextActivePlayerIndex(
+currentPlayerIndex
+);
+
+if(nextIndex<0){
+showFinishWindow();
+return;
+}
+
+currentPlayerIndex=nextIndex;
+}
+
+chainOriginNextIndex=null;
+chainSixQueue=[];
+
+updateCurrentPlayer();
+}
+
+function finishNormalTurn(){
+
+if(gamePhase!=="playing")return;
+
+diceRolled=false;
+rolledDice=null;
+remainingDice=[];
+possibleMoves=[];
+
+clearMoveHighlights();
+
+skipButton.style.display="none";
+skipButton.disabled=false;
+rollButton.disabled=false;
+
+dice1.textContent="—";
+dice2.textContent="—";
+total.textContent="—";
+
+while(chainSixQueue.length>0){
+
+const next=
+chainSixQueue[0];
+
+if(next&&next.count>0){
+
+chainSixQueue.shift();
+
+const receiver=
+players[next.playerKey];
+
+if(
+receiver&&
+!receiver.finished&&
+receiver.bonusSixes>0
+){
+
+startChainSix(
+next.playerKey,
+Math.min(
+next.count,
+receiver.bonusSixes
+),
+chainOriginNextIndex
+);
+
+return;
+}
+}
+
+if(chainOriginNextIndex!==null){
+
+const nextIndex=
+findNextActivePlayerIndex(
+chainOriginNextIndex-1
+);
+
+if(nextIndex<0){
+
+showFinishWindow();
+return;
+}
+
+currentPlayerIndex=nextIndex;
+
+chainOriginNextIndex=null;
+chainSixQueue=[];
+
+updateCurrentPlayer();
+startTurnTimer();
+
+return;
+}
+}
+
+const nextIndex=
+findNextActivePlayerIndex(
+currentPlayerIndex
+);
+
+if(nextIndex<0){
+
+showFinishWindow();
+return;
+}
+
+currentPlayerIndex=nextIndex;
+
+updateCurrentPlayer();
+
+if(!fastForwardMode){
+
+    startTurnTimer();
+
+}
+
+} 
+
+function finishTurn(){
+
+    if(chainSixActive)return;
+
+    confirmTurn();
+}
+
+
+function confirmTurn(){
+
+    if(gamePhase!=="playing")return;
+
+    if(!diceRolled)return;
+
+    if(chainSixActive)return;
+
+    if(!turnAwaitingConfirmation){
+
+        message.textContent=
+            "Сначала выполните доступные действия.";
+
+        return;
+    }
+
+    //
+    // Перед окончательным переходом проверяем,
+    // не закончился ли игрок.
+    //
+    const key=
+        playerOrder[currentPlayerIndex];
+
+    const player=
+        players[key];
+
+    if(
+        player&&
+        getFinishedPieceCount(key)>=
+        PIECES_PER_PLAYER
+    ){
+
+        finishPlayer(key);
+
+        turnHistory=[];
+
+        turnAwaitingConfirmation=false;
+
+        updateTurnButtons();
+
+        return;
+    }
+
+    //
+    // История больше не нужна:
+    // ход окончательно принят.
+    //
+    turnHistory=[];
+
+    turnAwaitingConfirmation=false;
+
+    updateTurnButtons();
+
+    finishNormalTurn();
+}
+
+function skipTurn(){
+
+if(chainSixActive)return;
+
+if(
+!diceRolled||
+remainingDice.length===0
+)
+return;
+
+const key=
+playerOrder[currentPlayerIndex];
+
+const player=players[key];
+
+if(!player||player.finished)return;
+
+const optimal=
+    plannerGetOptimalActions(
+        remainingDice
+    );
+
+if(optimal.actions.length>0){
+
+    message.textContent=
+        "Ход пропустить нельзя — есть возможный ход.";
+
+    return;
+}
+
+message.textContent=
+player.name+
+" игрок пропускает ход.";
+
+remainingDice=[];
+
+syncRolledDiceFromRemaining();
+
+finishNormalTurn();
+}
+
+function formatTurnTime(seconds){
+
+const minutes=Math.floor(seconds/60);
+const secs=seconds%60;
+
+return minutes+":"+
+String(secs).padStart(2,"0");
+}
+
+function stopTurnTimer(){
+
+if(turnTimerInterval!==null){
+
+clearInterval(turnTimerInterval);
+turnTimerInterval=null;
+
+}
+
+}
+
+function resetTurnTimer(){
+
+stopTurnTimer();
+
+turnTimeLeft=TURN_TIME;
+
+turnTimerElement.textContent=
+formatTurnTime(turnTimeLeft);
+
+timeoutProcessing=false;
+
+const key=playerOrder[currentPlayerIndex];
+const player=players[key];
+
+if(player){
+
+timeoutInfo.textContent=
+player.timeoutCount+
+" / 3";
+
+}else{
+
+timeoutInfo.textContent="";
+}
+
+}
+
+function startTurnTimer(){
+
+if(gamePhase!=="playing")return;
+if(chainSixActive)return;
+
+const key=playerOrder[currentPlayerIndex];
+const player=players[key];
+
+if(!player||player.finished)return;
+
+resetTurnTimer();
+
+turnTimerInterval=setInterval(()=>{
+
+if(gamePhase!=="playing"||chainSixActive){
+
+stopTurnTimer();
+return;
+
+}
+
+turnTimeLeft--;
+
+turnTimerElement.textContent=
+formatTurnTime(turnTimeLeft);
+
+if(turnTimeLeft<=0){
+
+stopTurnTimer();
+
+handleTurnTimeout();
+
+}
+
+},1000);
+
+}
+
+function handleTurnTimeout(){
+
+if(timeoutProcessing)return;
+
+timeoutProcessing=true;
+
+if(gamePhase!=="playing")return;
+
+const key=playerOrder[currentPlayerIndex];
+const player=players[key];
+
+if(!player||player.finished){
+
+timeoutProcessing=false;
+return;
+
+}
+
+player.timeoutCount++;
+
+timeoutInfo.textContent=
+player.timeoutCount+
+" / 3";
+
+if(player.timeoutCount<3){
+
+message.textContent=
+player.name+
+" игрок не успел сделать ход. Тайм-аут №"+
+player.timeoutCount+
+". Ход пропущен.";
+
+remainingDice=[];
+rolledDice=null;
+diceRolled=false;
+possibleMoves=[];
+
+clearMoveHighlights();
+
+skipButton.style.display="none";
+skipButton.disabled=true;
+
+setTimeout(()=>{
+
+timeoutProcessing=false;
+finishNormalTurn();
+
+},700);
+
+return;
+
+}
+
+message.textContent=
+player.name+
+" игрок получает третий тайм-аут и выбывает из игры.";
+
+setTimeout(()=>{
+
+timeoutProcessing=false;
+eliminatePlayer(key);
+
+},700);
+
+}
+
+function eliminatePlayer(playerKey){
+
+    const player=players[playerKey];
+
+    if(!player||player.finished)return;
+
+    player.eliminated=true;
+    player.finished=true;
+
+    assignEliminationPlace(playerKey);
+
+    // Все собственные фишки выбывшего игрока
+    // возвращаются в его зону ожидания,
+    // включая те, которые находились в плену.
+    player.pieces.forEach(piece=>{
+
+        piece.capturedBy=null;
+        piece.position=-1;
+        piece.finishPosition=-1;
+        piece.shelterIndex=-1;
+        piece.atStart=false;
+
+        if(piece.element){
+            piece.element.classList.remove("selectable");
+            piece.element.classList.remove("captive");
+        }
+
+        placePiece(piece);
+    });
+
+    message.textContent=
+        player.name+
+        " игрок выбыл из игры. Все его собственные фишки возвращены в зону ожидания.";
+
+    const activePlayers=
+        getActivePlayers();
+
+    if(activePlayers.length<=1){
+
+        if(activePlayers.length===1){
+
+            const lastPlayer=
+                players[activePlayers[0]];
+
+            if(lastPlayer.place===null){
+
+                assignFinishPlace(activePlayers[0]);
+
+            }
+        }
+
+        gamePhase="finished";
+
+        setTimeout(showFinishWindow,700);
+
+        return;
+    }
+
+    setTimeout(()=>{
+
+        rollButton.disabled=false;
+
+        finishNormalTurn();
+
+    },700);
+}
+
+function delay(ms){
+
+    if(fastForwardMode){
+
+        return Promise.resolve();
+
+    }
+
+    return new Promise(
+        resolve=>
+            setTimeout(
+                resolve,
+                ms
+            )
+    );
+}
+
+function updateCurrentPlayer(){
+
+if(gamePhase==="finished")return;
+
+if(gamePhase==="determining"){
+
+updateDeterminingScreen();
+return;
+}
+
+if(chainSixActive){
+
+const player=
+players[chainSixPlayer];
+
+if(!player)return;
+
+currentPlayerElement.textContent=
+"Цепная шестёрка: ход "+
+player.name+
+" игрока";
+
+currentPlayerElement.className=
+"current-player player-"+
+player.color;
+
+return;
+}
+
+const key=
+playerOrder[currentPlayerIndex];
+
+const player=
+players[key];
+
+if(!player)return;
+
+if(player.finished)return;
+
+currentPlayerElement.textContent=
+"Ход "+
+player.name+
+" игрока";
+
+currentPlayerElement.className=
+"current-player player-"+
+player.color;
+
+message.textContent=
+"Нажмите «Бросить» для броска кубиков.";
+if(
+    window.MandavoshkaBot &&
+    window.MandavoshkaBot.onTurnChanged
+){
+    window.MandavoshkaBot.onTurnChanged();
+}
+}
+
+// ========================================
+// API ДЛЯ BOT.JS
+// ========================================
+
+window.MandavoshkaGameAPI={
+
+    getGamePhase:function(){
+        return gamePhase;
+    },
+    
+    isFastForwardMode:function(){
+
+    return fastForwardMode;
+
+},
+
+    getCurrentPlayer:function(){
+        return playerOrder[currentPlayerIndex];
+    },
+
+    getHumanColor:function(){
+        return humanColor;
+    },
+
+    isBotTurn:function(){
+
+    if(gamePhase!=="playing")
+        return false;
+
+    const key=
+        playerOrder[currentPlayerIndex];
+
+    if(key===humanColor)
+        return false;
+
+    const player=
+        players[key];
+
+    if(!player||player.finished)
+        return false;
+
+    return true;
+},
+    
+    isBotChainSixTurn:function(){
+
+    if(gamePhase!=="playing")
+        return false;
+
+    if(!chainSixActive)
+        return false;
+
+    return chainSixPlayer!==humanColor;
+},
+
+isBotDeterminingTurn:function(){
+
+    if(gamePhase!=="determining")
+        return false;
+
+    const key=
+        determiningRoundPlayers[
+            determiningPlayerIndex
+        ];
+
+    return key!==humanColor;
+},
+
+    rollDice:function(){
+        rollDice();
+    },
+
+    getRemainingDice:function(){
+        return remainingDice.map(
+            die=>({
+                index:die.index,
+                value:die.value
+            })
+        );
+    },
+
+    getOptimalActions:function(){
+
+        return plannerGetOptimalActions(
+            remainingDice
+        );
+    },
+
+    executeAction:async function(
+    item
+){
+
+    if(!item)return;
+
+
+    /*
+     * Выкуп пленной фишки.
+     *
+     * Бот не открывает окно подтверждения,
+     * а сразу выполняет уже выбранное
+     * планировщиком действие.
+     */
+    if(
+        item.action&&
+        item.action.type==="buyback"
+    ){
+
+        pendingBuybackPiece=
+            item.piece;
+
+        buybackPiece();
+
+        return;
+    }
+
+
+    await executeSingleAction(
+        item.piece,
+        item.action
+    );
+},
+
+    isDiceRolled:function(){
+        return diceRolled;
+    },
+
+    hasRemainingDice:function(){
+        return remainingDice.length>0;
+    },
+
+    isTurnAwaitingConfirmation:function(){
+        return turnAwaitingConfirmation;
+    },
+
+    finishTurn:function(){
+        confirmTurn();
+    }, 
+    skipTurn:function(){
+    skipTurn();
+},
+clearTurnHistory:function(){
+
+    turnHistory=[];
+    turnAwaitingConfirmation=false;
+
+    updateTurnButtons();
+}, 
+
+getChainSixActions:function(){
+
+    if(!chainSixActive)
+        return[];
+
+    const player=
+        players[chainSixPlayer];
+
+    if(!player)
+        return[];
+
+    const result=[];
+
+
+    player.pieces.forEach(
+        piece=>{
+
+            if(
+                piece.capturedBy!==null
+            )
+                return;
+
+
+            const actions=
+                getSingleDieOptions(
+                    piece,
+                    6
+                );
+
+
+            actions.forEach(
+                action=>{
+
+                    result.push({
+
+                        piece:piece,
+                        action:action
+
+                    });
+
+                }
+            );
+        }
+    );
+
+
+    return result;
+},
+
+executeChainSixAction:async function(
+    item
+){
+
+    if(!item)return;
+
+    await executeChainSixAction(
+        item.piece,
+        item.action
+    );
+}
+
+};
+
+function randomDie(){
+return Math.floor(Math.random()*6)+1;
+}
+
+// ========================================
+// ЗВУК И ВИБРАЦИЯ
+// ========================================
+
+const gameSettings =
+    JSON.parse(
+        localStorage.getItem(
+            "mandavoshka_settings"
+        ) || "null"
+    );
+
+const soundEnabled =
+    !gameSettings ||
+    gameSettings.sound !== false;
+
+const vibrationEnabled =
+    !gameSettings ||
+    gameSettings.vibration !== false;
+
+
+let audioContext = null;
+
+function vibrateGame(pattern){
+
+    if(!vibrationEnabled)
+        return;
+
+    if(
+        "vibrate" in navigator
+    ){
+
+        try{
+
+            navigator.vibrate(pattern);
+
+        }catch(error){
+
+            console.log(
+                "Вибрация недоступна:",
+                error
+            );
+
+        }
+
+    }
+
+}
+
+function playDiceSound(){
+
+    if(!soundEnabled)
+        return;
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+        }
+
+        if(
+            audioContext.state ===
+            "suspended"
+        ){
+
+            audioContext.resume();
+
+        }
+
+        const now =
+            audioContext.currentTime;
+
+
+        function hit(
+            time,
+            frequency,
+            volume,
+            duration
+        ){
+
+            const oscillator =
+                audioContext.createOscillator();
+
+            const gain =
+                audioContext.createGain();
+
+            oscillator.type="triangle";
+
+            oscillator.frequency.setValueAtTime(
+                frequency,
+                time
+            );
+
+            oscillator.frequency.exponentialRampToValueAtTime(
+                frequency * 0.45,
+                time + duration
+            );
+
+            gain.gain.setValueAtTime(
+                0.0001,
+                time
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                volume,
+                time + 0.003
+            );
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                time + duration
+            );
+
+            oscillator.connect(gain);
+            gain.connect(
+                audioContext.destination
+            );
+
+            oscillator.start(time);
+
+            oscillator.stop(
+                time + duration
+            );
+
+        }
+
+
+        // Первый кубик
+        hit(
+            now,
+            520,
+            0.28,
+            0.10
+        );
+
+
+        // Второй кубик
+        hit(
+            now + 0.055,
+            390,
+            0.24,
+            0.12
+        );
+
+
+    }catch(error){
+
+        console.log(
+            "Звук недоступен:",
+            error
+        );
+
+    }
+}
+
+// Звук одного кубика для жеребьёвки
+
+function playDrawDiceSound(){
+
+    if(!soundEnabled)
+        return;
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+        }
+
+        if(
+            audioContext.state ===
+            "suspended"
+        ){
+
+            audioContext.resume();
+
+        }
+
+        const now =
+            audioContext.currentTime;
+
+
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gain =
+            audioContext.createGain();
+
+
+        oscillator.type="triangle";
+
+        oscillator.frequency.setValueAtTime(
+            470,
+            now
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            190,
+            now + 0.13
+        );
+
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.27,
+            now + 0.003
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now + 0.14
+        );
+
+
+        oscillator.connect(gain);
+
+        gain.connect(
+            audioContext.destination
+        );
+
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now + 0.15
+        );
+
+    }catch(error){
+
+        console.log(
+            "Звук жеребьёвки недоступен:",
+            error
+        );
+
+    }
+}
+
+function playPieceMoveSound(){
+
+    if(!soundEnabled)
+        return;
+
+    try{
+
+        if(!audioContext){
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+        }
+
+        if(
+            audioContext.state===
+            "suspended"
+        ){
+
+            audioContext.resume();
+        }
+
+        const now=
+            audioContext.currentTime;
+
+        const oscillator=
+            audioContext.createOscillator();
+
+        const gain=
+            audioContext.createGain();
+
+        oscillator.type="triangle";
+
+        oscillator.frequency.setValueAtTime(
+            260,
+            now
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            150,
+            now+0.07
+        );
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.16,
+            now+0.004
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now+0.08
+        );
+
+        oscillator.connect(gain);
+
+        gain.connect(
+            audioContext.destination
+        );
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now+0.09
+        );
+
+    }catch(error){
+
+        console.log(
+            "Звук движения недоступен:",
+            error
+        );
+
+    }
+}
+
+function showDie(element,value){
+
+    const positions={
+    1:[4],
+    2:[0,8],
+    3:[0,4,8],
+    4:[0,2,6,8],
+    5:[0,2,4,6,8],
+    6:[0,3,6,2,5,8]
+};
+
+    element.innerHTML="";
+
+    if(!positions[value]) return;
+
+    for(let i=0;i<9;i++){
+
+        const cell=document.createElement("div");
+
+        if(positions[value].includes(i)){
+            const dot=document.createElement("div");
+            dot.className="die-dot";
+            cell.appendChild(dot);
+        }
+
+        element.appendChild(cell);
+    }
+
+    element.dataset.value=value;
+}
+
+function rollDice(){
+
+if(gamePhase==="determining"){
+
+    if(rollButton.disabled)return;
+
+    rollButton.disabled=true;
+    
+    playDrawDiceSound();
+
+    const value=randomDie();
+    
+    vibrateGame(45);
+
+    determiningPendingValue=value;
+
+    dice1.style.display="flex";
+    dice2.style.display="none";
+
+    showDie(
+        dice1,
+        value
+    );
+
+    total.textContent=value;
+
+    finishDeterminingPlayer();
+
+    return;
+}
+
+
+if(
+    diceRolled||
+    chainSixActive||
+    gamePhase!=="playing"
+){
+    return;
+}
+
+rollButton.disabled=true;
+
+playDiceSound();
+
+turnHistory=[];
+turnAwaitingConfirmation=false;
+
+updateTurnButtons();
+
+const d1=randomDie();
+const d2=randomDie();
+
+vibrateGame(45);
+
+rolledDice={
+    d1:d1,
+    d2:d2
+};
+
+
+dice1.style.display="flex";
+dice2.style.display="flex";
+
+showDie(
+    dice1,
+    d1
+);
+
+showDie(
+    dice2,
+    d2
+);
+
+updateDiceTotal();
+
+diceRolled=true;
+
+remainingDice=[
+    {
+        index:0,
+        value:d1
+    },
+    {
+        index:1,
+        value:d2
+    }
+];
+
+possibleMoves=[];
+
+skipButton.style.display="none";
+
+
+const key=
+playerOrder[currentPlayerIndex];
+
+const player=
+players[key];
+
+if(!player||player.finished){
+
+    finishNormalTurn();
+
+    return;
+}
+
+
+const hasSix=
+d1===6||
+d2===6;
+
+
+if(hasSix){
+
+    const captiveExists=
+    player.pieces.some(
+        piece=>piece.capturedBy!==null
+    );
+
+    if(captiveExists){
+
+        message.textContent=
+        "Есть 6. Можно использовать её для обычного хода, выхода или добровольного выкупа.";
+
+    }else{
+
+        message.textContent=
+        "Есть шестёрка. Её можно использовать для выхода или обычного движения.";
+    }
+}
+
+
+const found=
+showAllNormalOptions();
+
+
+if(!found){
+
+    if(hasSix){
+
+        message.textContent=
+        "Нет обычных ходов. Шестёрку можно использовать для выкупа, если есть пленная фишка.";
+
+    }else{
+
+        message.textContent=
+        "Нет возможных ходов.";
+    }
+
+    skipButton.style.display=
+    "inline-block";
+}
+
+}
+
+function createPlayerPiece(
+player,
+index
+){
+
+const piece=
+createPieceState(
+player,
+index
+);
+
+const element=
+document.createElement(
+"div"
+);
+
+element.className=
+"piece "+
+player.color;
+
+piece.element=element;
+
+board.appendChild(element);
+
+element.addEventListener(
+"click",
+event=>{
+
+event.preventDefault();
+event.stopPropagation();
+
+const oldPointerEvents=
+element.style.pointerEvents;
+
+element.style.pointerEvents="none";
+
+const underlyingElement=
+document.elementFromPoint(
+event.clientX,
+event.clientY
+);
+
+element.style.pointerEvents=
+oldPointerEvents;
+
+const moveCell=
+underlyingElement&&
+underlyingElement.closest
+?underlyingElement.closest(".move-option")
+:null;
+
+if(moveCell){
+
+moveCell.click();
+
+return;
+
+}
+
+selectPiece(piece);
+
+}
+);
+
+player.pieces.push(piece);
+}
+
+rollButton.addEventListener(
+"click",
+rollDice
+);
+
+skipButton.addEventListener(
+"click",
+skipTurn
+);
+
+undoButton.addEventListener(
+"click",
+undoTurn
+);
+
+confirmButton.addEventListener(
+"click",
+confirmTurn
+);
+
+captureConfirmYes.addEventListener(
+"click",
+buybackPiece
+);
+
+captureConfirmNo.addEventListener(
+"click",
+closeBuybackConfirmation
+);
+
+restartButton.addEventListener(
+"click",
+restartGame
+);
+
+fastForwardButton.addEventListener(
+"click",
+fastForwardToResults
+);
+
+window.addEventListener(
+"resize",
+()=>{
+placeAllPieces();
+}
+);
+
+buildGrid();
+
+topArm();
+rightArm();
+bottomArm();
+leftArm();
+
+center();
+homes();
+shelters();
+starts();
+
+applyBoardOrientation();
+
+Object.values(players).forEach(
+player=>{
+
+for(
+let i=0;
+i<PIECES_PER_PLAYER;
+i++
+){
+
+createPlayerPiece(
+player,
+i
+);
+}
+}
+);
+
+requestAnimationFrame(
+()=>{
+placeAllPieces();
+}
+);
+
+// ========================================
+// СОСТАВ ТЕКУЩЕЙ ПАРТИИ
+// ========================================
+
+const allPlayerColors=[
+    "green",
+    "red",
+    "blue",
+    "black"
+];
+
+const selectedHumanColor=
+    humanColor;
+
+const selectedPlayerCount=
+    Math.max(
+        2,
+        Math.min(
+            4,
+            totalPlayers
+        )
+    );
+
+// Формируем состав:
+// выбранный человеком цвет +
+// следующие цвета по фиксированному порядку.
+const activePlayerColors=[
+    selectedHumanColor
+];
+
+for(
+    const color of allPlayerColors
+){
+
+    if(
+        activePlayerColors.length>=
+        selectedPlayerCount
+    ){
+        break;
+    }
+
+    if(
+        color===
+        selectedHumanColor
+    ){
+        continue;
+    }
+
+    activePlayerColors.push(color);
+}
+
+// В игровом порядке остаются только
+// реально участвующие игроки.
+playerOrder=
+    allPlayerColors.filter(
+        color=>
+            activePlayerColors.includes(color)
+    );
+
+// Полностью скрываем фишки цветов,
+// которые не участвуют в партии.
+Object.values(players).forEach(
+    player=>{
+
+        const isActive=
+            activePlayerColors.includes(
+                player.color
+            );
+
+        player.pieces.forEach(
+            piece=>{
+
+                if(!piece.element)return;
+
+                piece.element.style.display=
+                    isActive
+                    ?"block"
+                    :"none";
+            }
+        );
+    }
+);
+
+startDeterminingFirstPlayer();
+
+</script>
+
+<script src="bot.js"></script>
+
+</body>
+</html>
