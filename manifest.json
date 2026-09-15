@@ -4,6 +4,7 @@
   "description": "Мобильная настольная игра для двух-четырёх игроков",
   "lang": "ru",
   "start_url": "./menu.html",
+  "id": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
