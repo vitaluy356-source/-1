@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Настройки — Шэш-бэш</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#111111;
+    color:white;
+
+    font-family:Arial,sans-serif;
+}
+
+.settings{
+    width:min(92vw,520px);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+h1{
+    margin:0 0 30px 0;
+
+    font-size:32px;
+    text-align:center;
+}
+
+.setting-row{
+    width:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:18px 20px;
+    margin-bottom:14px;
+
+    border-radius:14px;
+
+    background:#222222;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.3);
+}
+
+.setting-name{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.setting-control{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.setting-state{
+    min-width:38px;
+
+    font-size:16px;
+    font-weight:bold;
+    text-align:center;
+}
+
+/* Переключатель */
+
+.switch{
+    position:relative;
+
+    width:58px;
+    height:32px;
+
+    display:inline-block;
+}
+
+.switch input{
+    opacity:0;
+    width:0;
+    height:0;
+}
+
+.slider{
+    position:absolute;
+
+    inset:0;
+
+    cursor:pointer;
+
+    background:#555555;
+
+    border-radius:32px;
+
+    transition:.2s;
+}
+
+.slider:before{
+    content:"";
+
+    position:absolute;
+
+    width:24px;
+    height:24px;
+
+    left:4px;
+    top:4px;
+
+    background:white;
+
+    border-radius:50%;
+
+    transition:.2s;
+}
+
+.switch input:checked + .slider{
+    background:#2f9e44;
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(26px);
+}
+
+/* Кнопка назад */
+
+.back-button{
+    width:100%;
+
+    margin-top:20px;
+
+    padding:20px;
+
+    border:none;
+    border-radius:14px;
+
+    background:linear-gradient(
+        135deg,
+        #4fc35a,
+        #2f9e44
+    );
+
+    color:white;
+
+    font-size:25px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.18);
+
+    transition:
+        transform .12s ease,
+        box-shadow .12s ease;
+}
+
+.back-button:active{
+    transform:scale(.97);
+
+    box-shadow:
+        0 3px 8px rgba(0,0,0,.3),
+        inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="settings">
+
+    <h1>НАСТРОЙКИ</h1>
+
+    <div class="setting-row">
+
+        <div class="setting-name">
+            🔊 Звук
+        </div>
+
+        <div class="setting-control">
+
+            <span
+                class="setting-state"
+                id="soundState"
+            >
+                ВКЛ
+            </span>
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="soundToggle"
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <div class="setting-row">
+
+        <div class="setting-name">
+            📳 Вибрация
+        </div>
+
+        <div class="setting-control">
+
+            <span
+                class="setting-state"
+                id="vibrationState"
+            >
+                ВКЛ
+            </span>
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="vibrationToggle"
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="back-button"
+        onclick="goBack()"
+    >
+        НАЗАД
+    </button>
+
+</div>
+
+
+<script>
+
+const soundToggle=
+    document.getElementById(
+        "soundToggle"
+    );
+
+const vibrationToggle=
+    document.getElementById(
+        "vibrationToggle"
+    );
+
+const soundState=
+    document.getElementById(
+        "soundState"
+    );
+
+const vibrationState=
+    document.getElementById(
+        "vibrationState"
+    );
+
+
+/* Загружаем сохранённые настройки */
+
+const savedSettings=
+    JSON.parse(
+        localStorage.getItem(
+            "mandavoshka_settings"
+        ) || "null"
+    );
+
+
+if(savedSettings){
+
+    soundToggle.checked=
+        savedSettings.sound!==false;
+
+    vibrationToggle.checked=
+        savedSettings.vibration!==false;
+
+}else{
+
+    soundToggle.checked=true;
+
+    vibrationToggle.checked=true;
+
+}
+
+
+/* Обновление надписей */
+
+function updateStates(){
+
+    soundState.textContent=
+        soundToggle.checked
+        ? "ВКЛ"
+        : "ВЫКЛ";
+
+    vibrationState.textContent=
+        vibrationToggle.checked
+        ? "ВКЛ"
+        : "ВЫКЛ";
+
+}
+
+
+/* Сохранение */
+
+function saveSettings(){
+
+    localStorage.setItem(
+
+        "mandavoshka_settings",
+
+        JSON.stringify({
+
+            sound:
+                soundToggle.checked,
+
+            vibration:
+                vibrationToggle.checked
+
+        })
+
+    );
+
+    updateStates();
+
+}
+
+
+soundToggle.addEventListener(
+    "change",
+    saveSettings
+);
+
+vibrationToggle.addEventListener(
+    "change",
+    saveSettings
+);
+
+
+updateStates();
+
+
+/* Назад в меню */
+
+function goBack(){
+
+    window.location.href="menu.html";
+
+}
+
+</script>
+
+</body>
+</html>
