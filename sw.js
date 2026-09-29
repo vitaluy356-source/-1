@@ -1,4 +1,4 @@
-const CACHE_NAME = "mandavoshka-v2";
+const CACHE_NAME = "mandavoshka-v3";
 
 const FILES_TO_CACHE = [
     "./",
@@ -29,6 +29,7 @@ self.addEventListener(
         );
 
         self.skipWaiting();
+
     }
 );
 
@@ -46,17 +47,21 @@ self.addEventListener(
                             keys
                                 .filter(
                                     key =>
-                                        key !== CACHE_NAME
+                                        key !==
+                                        CACHE_NAME
                                 )
                                 .map(
                                     key =>
-                                        caches.delete(key)
+                                        caches.delete(
+                                            key
+                                        )
                                 )
                         )
                 )
         );
 
         self.clients.claim();
+
     }
 );
 
@@ -68,25 +73,36 @@ self.addEventListener(
         const request =
             event.request;
 
+
         /*
-         * Для обычных запросов:
-         * сначала используем кэш,
-         * затем интернет.
+         * Обычный запрос.
+         * Сначала используем кэш.
          */
         event.respondWith(
 
             caches
-                .match(request)
+                .match(
+                    request
+                )
                 .then(
                     cachedResponse => {
 
-                        if(cachedResponse){
+                        if(
+                            cachedResponse
+                        ){
 
                             return cachedResponse;
 
                         }
 
-                        return fetch(request);
+
+                        /*
+                         * Если файла нет в кэше,
+                         * пробуем загрузить его из сети.
+                         */
+                        return fetch(
+                            request
+                        );
 
                     }
                 )
@@ -94,9 +110,8 @@ self.addEventListener(
                     () => {
 
                         /*
-                         * Если пользователь открывает
-                         * страницу без интернета,
-                         * вместо технической ошибки
+                         * Если сеть недоступна
+                         * и это переход на страницу,
                          * показываем нашу заглушку.
                          */
                         if(
@@ -105,14 +120,18 @@ self.addEventListener(
                         ){
 
                             return caches.match(
-                                "./offline.html"
+                                new URL(
+                                    "./offline.html",
+                                    self.location
+                                ).href
                             );
 
                         }
 
+
                         /*
-                         * Для остальных ресурсов
-                         * не подменяем ответ.
+                         * Остальные ресурсы
+                         * не подменяем.
                          */
                         return Response.error();
 
