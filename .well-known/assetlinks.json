@@ -1,1 +1,8 @@
-
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.vitaluy356_source.twa",
+        "sha256_cert_fingerprints": ["E2:21:F0:FD:26:9A:A2:DA:7F:B1:36:33:5E:7B:46:90:B6:38:3D:F5:01:AD:BF:82:BA:FE:C6:FA:F4:AC:80:C3"]
+      }
+    }]
